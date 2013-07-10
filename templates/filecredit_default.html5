@@ -1,0 +1,7 @@
+<a href="<?php echo $this->link; ?>"><?php echo $this->pageTitle; ?></a>
+&nbsp;–&nbsp;
+<?php echo $this->copyright; ?>
+&nbsp;–&nbsp;
+<a href="<?php echo $this->path; ?>" title="<?php echo $this->copyright; ?>" <?php echo $this->attribute; ?>>
+<?php echo $this->linkText; ?>
+</a>

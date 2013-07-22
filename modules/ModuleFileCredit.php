@@ -28,7 +28,6 @@ class ModuleFileCredit extends \FileCredit
 	{
 		$objCredits = $this->getFileCredits();
 
-
 		if($objCredits === null)
 		{
 			$this->Template = new \FrontendTemplate('mod_filecredit_empty');
@@ -40,7 +39,11 @@ class ModuleFileCredit extends \FileCredit
 
 		while($objCredits->next())
 		{
-			$arrCredits[] = $this->parseCredit($objCredits);
+			$strCredit = $this->parseCredit($objCredits);
+
+			if(is_null($strCredit)) continue;
+
+			$arrCredits[] = $strCredit;
 		}
 
 		$this->Template->credits = $arrCredits;

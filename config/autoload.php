@@ -26,13 +26,15 @@ ClassLoader::addNamespaces(array
 ClassLoader::addClasses(array
 (
 	// Modules
-	'HeimrichHannot\ModuleFileCredit' => 'system/modules/filecredits/modules/ModuleFileCredit.php',
+	'HeimrichHannot\ModuleFileCredit'      => 'system/modules/filecredits/modules/ModuleFileCredit.php',
 
 	// Models
-	'HeimrichHannot\FileCreditModel'  => 'system/modules/filecredits/models/FileCreditModel.php',
+	'HeimrichHannot\FileCreditHybridModel' => 'system/modules/filecredits/models/FileCreditHybridModel.php',
+	'HeimrichHannot\FileCreditModel'       => 'system/modules/filecredits/models/FileCreditModel.php',
 
 	// Classes
-	'HeimrichHannot\FileCredit'       => 'system/modules/filecredits/classes/FileCredit.php',
+	'HeimrichHannot\FileCredit'            => 'system/modules/filecredits/classes/FileCredit.php',
+	'HeimrichHannot\FileCreditNews'        => 'system/modules/filecredits/classes/FileCreditNews.php',
 ));
 
 

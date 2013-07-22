@@ -4,10 +4,9 @@ namespace HeimrichHannot;
 
 class FileCreditModel extends \FilesModel
 {
-
 	protected static $strTable = 'tl_files';
 
-	public static function findMultiplePublishedContentElementsByExtensionsAndRoot($arrIds, $arrExtensions, array $arrOptions=array())
+	public static function findMultiplePublishedContentElementsByExtensions($arrIds, $arrExtensions, array $arrOptions=array())
 	{
 		if (!is_array($arrIds) || empty($arrIds) || !is_array($arrExtensions) || empty($arrExtensions))
 		{
@@ -27,19 +26,46 @@ class FileCreditModel extends \FilesModel
 
 		$objDatabase = \Database::getInstance();
 
+// 		$objResult = $objDatabase->prepare
+// 		(
+// 			"
+// 				SELECT f.id AS fileId, c.id AS contentId, c.ptable as ptable FROM tl_content c
+// 				LEFT JOIN f ON f.id = c.singleSRC
+// 				WHERE f.extension IN('" . implode("','", $arrExtensions) . "')
+// 				AND f.copyright != ''
+// 				AND c.invisible = ''
+// 			"
+// 		)->execute();
+
+
 		$objResult = $objDatabase->prepare
 		(
 			"
-				SELECT f.id AS fileId, a.id AS articleId, p.id AS pageId, c.id AS contentId FROM tl_content c
-				LEFT JOIN $t f on f.id = c.singleSRC
-				LEFT JOIN tl_article a ON a.id = c.pid
-				LEFT JOIN tl_page p ON p.id = a.pid
-				WHERE f.extension IN('" . implode("','", $arrExtensions) . "')
-				AND p.id IN('" . implode("','", $arrIds) . "')
-				AND f.copyright != ''
-				AND a.published = 1
-				AND p.published = 1
-				AND c.invisible = ''
+				SELECT DISTINCT * FROM
+				(
+					-- singleSRC support
+					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
+					FROM $t
+					LEFT JOIN tl_content c ON c.singleSRC = $t.id
+
+					UNION ALL
+
+					-- multiSRC support
+					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
+					FROM $t
+					LEFT JOIN tl_content c ON FIND_IN_SET($t.id, c.orderSRC)
+
+					UNION ALL
+
+					-- news support
+					SELECT c.id AS cid, 'tl_news' as ptable, c.pid as parent, $t.*
+					FROM $t
+					LEFT JOIN tl_news c ON c.singleSRC = $t.id
+					WHERE c.addImage = 1
+				) AS files
+				WHERE files.extension IN('" . implode("','", $arrExtensions) . "')
+				AND files.copyright != ''
+				AND cid IS NOT NULL
 			"
 		)->execute();
 

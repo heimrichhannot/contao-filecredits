@@ -4,19 +4,29 @@ namespace HeimrichHannot;
 
 abstract class FileCredit extends \Module
 {
+	/**
+	 * URL cache array
+	 * @var array
+	 */
+	private static $arrUrlCache = array();
+
 	protected function parseCredit($objCredit)
 	{
 		global $objPage;
 
+		$objCredit = FileCreditHybridModel::findRelatedByCredit($objCredit);
+
+		if(is_null($objCredit)) return null;
+
 		$objTemplate = new \FrontendTemplate('filecredit_default');
 
-		$objJumpTo = \PageModel::findByPk($objCredit->pageId);
-		$objFile = \FilesModel::findByPk($objCredit->fileId);
-
-		$objTemplate->setData($objFile->row());
-		$objTemplate->link = $this->generateFrontendUrl($objJumpTo->row());
+		$objTemplate->setData($objCredit->file->row());
+		// TODO
+		$objTemplate->link = $this->generateCreditUrl($objCredit);
 		$objTemplate->linkText = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
-		$objTemplate->pageTitle = $objJumpTo->pageTitle ? $objJumpTo->pageTitle : $objJumpTo->title;
+
+		// TODO
+		$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
 
 		// colorbox support
 		if ($objPage->outputFormat == 'xhtml')
@@ -25,12 +35,27 @@ abstract class FileCredit extends \Module
 		}
 		else
 		{
-			$strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objFile->id), 0, 6) . ']';
+			$strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objCredit->file->id), 0, 6) . ']';
 		}
 
 		$objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-lightbox="' : ' rel="') . $strLightboxId .'"' : '');
 
 		return $objTemplate->parse();
+	}
+
+	protected function generateCreditUrl($objCredit)
+	{
+		$strCacheKey = 'id-' . $objCredit->page->id . '-' . $objCredit->result->ptable . '-' . $objCredit->parent->id;
+
+		// Load the URL from cache
+		if (isset(self::$arrUrlCache[$strCacheKey]))
+		{
+			return self::$arrUrlCache[$strCacheKey];
+		}
+
+		self::$arrUrlCache[$strCacheKey] = $this->generateFrontendUrl($objCredit->page->row());
+
+		return self::$arrUrlCache[$strCacheKey];
 	}
 
 	protected function getFileCredits()
@@ -39,11 +64,10 @@ abstract class FileCredit extends \Module
 
 		$arrIds = $this->getChildRecords(array($this->defineRoot), 'tl_page');
 
-		$objCredits = \FileCreditModel::findMultiplePublishedContentElementsByExtensionsAndRoot($arrIds, $arrAllowedTypes);
+		$objCredits = \FileCreditModel::findMultiplePublishedContentElementsByExtensions($arrIds, $arrAllowedTypes);
 
 		if($objCredits === null) return null;
 
 		return $objCredits;
 	}
-
 }

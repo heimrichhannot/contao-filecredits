@@ -26,18 +26,6 @@ class FileCreditModel extends \FilesModel
 
 		$objDatabase = \Database::getInstance();
 
-// 		$objResult = $objDatabase->prepare
-// 		(
-// 			"
-// 				SELECT f.id AS fileId, c.id AS contentId, c.ptable as ptable FROM tl_content c
-// 				LEFT JOIN f ON f.id = c.singleSRC
-// 				WHERE f.extension IN('" . implode("','", $arrExtensions) . "')
-// 				AND f.copyright != ''
-// 				AND c.invisible = ''
-// 			"
-// 		)->execute();
-
-
 		$objResult = $objDatabase->prepare
 		(
 			"
@@ -47,6 +35,14 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_content c ON c.singleSRC = $t.id
+					WHERE (c.type = 'image' OR c.type='text' AND c.addImage = 1)
+
+					UNION ALL
+
+					-- text support
+					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
+					FROM $t
+					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%')
 
 					UNION ALL
 

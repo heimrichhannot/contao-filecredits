@@ -27,7 +27,6 @@ class FileCreditHybridModel
 				if($objJumpTo == null) return null;
 				$objThis->page = $objJumpTo;
 
-
 			break;
 			case 'tl_news':
 

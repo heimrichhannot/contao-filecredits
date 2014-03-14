@@ -1,6 +1,6 @@
 <?php
 
-namespace HeimrichHannot;
+namespace HeimrichHannot\FileCredit;
 
 class FileCreditModel extends \FilesModel
 {
@@ -34,7 +34,7 @@ class FileCreditModel extends \FilesModel
 					-- singleSRC support
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
-					LEFT JOIN tl_content c ON c.singleSRC = $t.id
+					LEFT JOIN tl_content c ON c.singleSRC = $t.uuid
 					WHERE (c.type = 'image' OR c.type='text' AND c.addImage = 1)
 
 					UNION ALL
@@ -49,14 +49,14 @@ class FileCreditModel extends \FilesModel
 					-- multiSRC support
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
-					LEFT JOIN tl_content c ON FIND_IN_SET($t.id, c.orderSRC)
+					LEFT JOIN tl_content c ON FIND_IN_SET($t.uuid, c.orderSRC)
 
 					UNION ALL
 
 					-- news support
 					SELECT c.id AS cid, 'tl_news' as ptable, c.pid as parent, $t.*
 					FROM $t
-					LEFT JOIN tl_news c ON c.singleSRC = $t.id
+					LEFT JOIN tl_news c ON c.singleSRC = $t.uuid
 					WHERE c.addImage = 1
 				) AS files
 				WHERE files.extension IN('" . implode("','", $arrExtensions) . "')

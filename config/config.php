@@ -2,4 +2,4 @@
 /**
  * Front end modules
  */
-$GLOBALS['FE_MOD']['miscellaneous']['filecredit'] = 'ModuleFileCredit';
+$GLOBALS['FE_MOD']['miscellaneous']['filecredit'] = 'HeimrichHannot\FileCredit\ModuleFileCredit';

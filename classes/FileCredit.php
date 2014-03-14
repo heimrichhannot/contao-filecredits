@@ -1,6 +1,6 @@
 <?php
 
-namespace HeimrichHannot;
+namespace HeimrichHannot\FileCredit;
 
 abstract class FileCredit extends \Module
 {
@@ -64,8 +64,8 @@ abstract class FileCredit extends \Module
 
 		$arrIds = $this->getChildRecords(array($this->defineRoot), 'tl_page');
 
-		$objCredits = \FileCreditModel::findMultiplePublishedContentElementsByExtensions($arrIds, $arrAllowedTypes);
-
+		$objCredits = FileCreditModel::findMultiplePublishedContentElementsByExtensions($arrIds, $arrAllowedTypes);
+		
 		if($objCredits === null) return null;
 
 		return $objCredits;

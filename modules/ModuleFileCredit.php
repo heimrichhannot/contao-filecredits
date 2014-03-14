@@ -1,8 +1,8 @@
 <?php
 
-namespace HeimrichHannot;
+namespace HeimrichHannot\FileCredit;
 
-class ModuleFileCredit extends \FileCredit
+class ModuleFileCredit extends FileCredit
 {
 	protected $strTemplate = 'mod_filecredit';
 

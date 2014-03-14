@@ -1,6 +1,6 @@
 <?php
 
-namespace HeimrichHannot;
+namespace HeimrichHannot\FileCredit;
 
 class FileCreditHybridModel
 {

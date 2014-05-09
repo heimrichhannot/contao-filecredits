@@ -38,8 +38,8 @@ abstract class FileCredit extends \Module
 			$strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objCredit->file->id), 0, 6) . ']';
 		}
 
-		$objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-lightbox="' : ' rel="') . $strLightboxId .'"' : '');
-
+		$objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $this->id . '" data-lightbox="' : ' rel="') . $strLightboxId .'"' : '');
+		
 		return $objTemplate->parse();
 	}
 
@@ -47,13 +47,32 @@ abstract class FileCredit extends \Module
 	{
 		$strCacheKey = 'id-' . $objCredit->page->id . '-' . $objCredit->result->ptable . '-' . $objCredit->parent->id;
 
+		$autoitem = null;
+		
+		switch($objCredit->result->ptable)
+		{
+			case 'tl_news':
+				$autoitem = 'items';
+				break;
+			case 'tl_calendar_events':
+				$autoitem = 'events';
+				break;
+		}
+
 		// Load the URL from cache
 		if (isset(self::$arrUrlCache[$strCacheKey]))
 		{
 			return self::$arrUrlCache[$strCacheKey];
 		}
 
-		self::$arrUrlCache[$strCacheKey] = $this->generateFrontendUrl($objCredit->page->row());
+		if(is_null($autoitem))
+		{
+			self::$arrUrlCache[$strCacheKey] = $this->generateFrontendUrl($objCredit->page->row());
+		}
+		else
+		{
+			self::$arrUrlCache[$strCacheKey] = ampersand($this->generateFrontendUrl($objCredit->page->row(), (($GLOBALS['TL_CONFIG']['useAutoItem'] && !$GLOBALS['TL_CONFIG']['disableAlias']) ?  '/' : '/' . $autoitem . '/') . ((!$GLOBALS['TL_CONFIG']['disableAlias'] && $objCredit->parent->alias != '') ? $objCredit->parent->alias : $objCredit->parent->id)));
+		}
 
 		return self::$arrUrlCache[$strCacheKey];
 	}
@@ -64,10 +83,26 @@ abstract class FileCredit extends \Module
 
 		$arrIds = $this->getChildRecords(array($this->defineRoot), 'tl_page');
 
-		$objCredits = FileCreditModel::findMultiplePublishedContentElementsByExtensions($arrIds, $arrAllowedTypes);
+		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrAllowedTypes);
 		
-		if($objCredits === null) return null;
+		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($arrIds, $arrAllowedTypes);
+		
+		if($objSingleSRCCredits === null || $objMultiSRCCredits === null) return null;
 
-		return $objCredits;
+		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits);
+		
+		uasort($arrAll, 'HeimrichHannot\FileCredit\FileCredit::sortByParent');
+		
+		return $arrAll;
+	}
+	
+	
+	public static function sortByParent($a, $b)
+	{
+		if ($a->parent == $b->parent)
+		{
+			return 0;
+		}
+		return ($b->parent > $a->parent) ? 1 : -1;
 	}
 }

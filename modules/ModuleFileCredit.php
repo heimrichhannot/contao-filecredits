@@ -36,10 +36,10 @@ class ModuleFileCredit extends FileCredit
 		}
 
 		$arrCredits = array();
-
-		while($objCredits->next())
+		
+		foreach($objCredits as $objCredit)
 		{
-			$strCredit = $this->parseCredit($objCredits);
+			$strCredit = $this->parseCredit($objCredit);
 
 			if(is_null($strCredit)) continue;
 

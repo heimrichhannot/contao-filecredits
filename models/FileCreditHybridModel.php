@@ -14,7 +14,7 @@ class FileCreditHybridModel
 		$objFile = \FilesModel::findByPk($objCredit->id);
 		if($objFile === null) return null;
 		$objThis->file = $objFile;
-
+		
 		switch($objCredit->ptable)
 		{
 			case 'tl_article':
@@ -30,10 +30,11 @@ class FileCreditHybridModel
 			break;
 			case 'tl_news':
 
-				$objNews = \NewsModel::findPublishedByPid($objCredit->parent);
+				$objNews = \NewsModel::findByPk($objCredit->parent);
+				
 				if($objNews === null) return null;
 
-				$objThis->parent = $objNews;
+				$objThis->parent = $objNews->current();
 
 				$objNewsArchive = \NewsArchiveModel::findByPk($objNews->pid);
 

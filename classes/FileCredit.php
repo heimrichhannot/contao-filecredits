@@ -15,7 +15,7 @@ abstract class FileCredit extends \Module
 		global $objPage;
 
 		$objCredit = FileCreditHybridModel::findRelatedByCredit($objCredit);
-
+		
 		if(is_null($objCredit)) return null;
 
 		$objTemplate = new \FrontendTemplate('filecredit_default');
@@ -26,7 +26,15 @@ abstract class FileCredit extends \Module
 		$objTemplate->linkText = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
 
 		// TODO
-		$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
+		if($objCredit->page === null && $objCredit->result->usage)
+		{
+			$objTemplate->pageTitle = $objCredit->result->usage;
+			
+		}
+		else
+		{
+			$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
+		}
 
 		// colorbox support
 		if ($objPage->outputFormat == 'xhtml')
@@ -45,6 +53,8 @@ abstract class FileCredit extends \Module
 
 	protected function generateCreditUrl($objCredit)
 	{
+		if($objCredit->page === null) return null;
+		
 		$strCacheKey = 'id-' . $objCredit->page->id . '-' . $objCredit->result->ptable . '-' . $objCredit->parent->id;
 
 		$autoitem = null;
@@ -87,9 +97,11 @@ abstract class FileCredit extends \Module
 		
 		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($arrIds, $arrAllowedTypes);
 		
-		if($objSingleSRCCredits === null || $objMultiSRCCredits === null) return null;
+		$objMultiSelectedCredits = FileCreditModel::findMultiplePublishedBySelectedCredits(deserialize(($this->selectedCredits)));
+		
+		if($objSingleSRCCredits === null || $objMultiSRCCredits === null || $objMultiSelectedCredits === null) return null;
 
-		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits);
+		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits, $objMultiSelectedCredits);
 		
 		uasort($arrAll, 'HeimrichHannot\FileCredit\FileCredit::sortByParent');
 		

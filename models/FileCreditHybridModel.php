@@ -43,6 +43,9 @@ class FileCreditHybridModel
 				$objThis->page = $objJumpTo;
 
 			break;
+			default:
+				$objThis->parent = null;
+				$objThis->page = null;
 		}
 
 		return $objThis;

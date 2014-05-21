@@ -25,12 +25,12 @@ ClassLoader::addNamespaces(array
  */
 ClassLoader::addClasses(array
 (
+	// Models
+	'HeimrichHannot\FileCredit\FileCreditModel'       => 'system/modules/filecredits/models/FileCreditModel.php',
+	'HeimrichHannot\FileCredit\FileCreditHybridModel' => 'system/modules/filecredits/models/FileCreditHybridModel.php',
+
 	// Modules
 	'HeimrichHannot\FileCredit\ModuleFileCredit'      => 'system/modules/filecredits/modules/ModuleFileCredit.php',
-
-	// Models
-	'HeimrichHannot\FileCredit\FileCreditHybridModel' => 'system/modules/filecredits/models/FileCreditHybridModel.php',
-	'HeimrichHannot\FileCredit\FileCreditModel'       => 'system/modules/filecredits/models/FileCreditModel.php',
 
 	// Classes
 	'HeimrichHannot\FileCredit\FileCredit'            => 'system/modules/filecredits/classes/FileCredit.php',
@@ -42,7 +42,7 @@ ClassLoader::addClasses(array
  */
 TemplateLoader::addFiles(array
 (
-	'mod_filecredit'       => 'system/modules/filecredits/templates/modules',
 	'mod_filecredit_empty' => 'system/modules/filecredits/templates/modules',
+	'mod_filecredit'       => 'system/modules/filecredits/templates/modules',
 	'filecredit_default'   => 'system/modules/filecredits/templates/credit',
 ));

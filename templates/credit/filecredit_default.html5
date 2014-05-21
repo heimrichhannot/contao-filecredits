@@ -1,4 +1,10 @@
-<a href="<?php echo $this->link; ?>"><?php echo $this->pageTitle; ?></a>
+<?php if($this->link): ?>
+<a href="<?php echo $this->link; ?>">
+<?php endif; ?>
+<?php echo $this->pageTitle; ?>
+<?php if($this->link): ?>
+</a>
+<?php endif; ?>
 &nbsp;–&nbsp;
 <?php echo $this->copyright; ?>
 &nbsp;–&nbsp;

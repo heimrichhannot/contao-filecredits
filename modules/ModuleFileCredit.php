@@ -20,7 +20,7 @@ class ModuleFileCredit extends FileCredit
 
 			return $objTemplate->parse();
 		}
-
+		// TEST
 		return parent::generate();
 	}
 

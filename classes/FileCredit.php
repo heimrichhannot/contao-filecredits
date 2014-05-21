@@ -10,12 +10,14 @@ abstract class FileCredit extends \Module
 	 */
 	private static $arrUrlCache = array();
 
-	protected function parseCredit($objCredit)
+	protected function parseCredit($objItem)
 	{
 		global $objPage;
 
-		$objCredit = FileCreditHybridModel::findRelatedByCredit($objCredit);
-
+		$objCredit = new FileCreditHybridModel();
+		
+		$objCredit->findRelatedByCredit($objItem);
+		
 		if(is_null($objCredit)) return null;
 
 		$objTemplate = new \FrontendTemplate('filecredit_default');
@@ -26,7 +28,15 @@ abstract class FileCredit extends \Module
 		$objTemplate->linkText = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
 
 		// TODO
-		$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
+		if($objCredit->page === null && $objCredit->result->usage)
+		{
+			$objTemplate->pageTitle = $objCredit->result->usage;
+			
+		}
+		else
+		{
+			$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
+		}
 
 		// colorbox support
 		if ($objPage->outputFormat == 'xhtml')
@@ -45,8 +55,10 @@ abstract class FileCredit extends \Module
 
 	protected function generateCreditUrl($objCredit)
 	{
+		if($objCredit->page === null) return null;
+		
 		$strCacheKey = 'id-' . $objCredit->page->id . '-' . $objCredit->result->ptable . '-' . $objCredit->parent->id;
-
+		
 		$autoitem = null;
 		
 		switch($objCredit->result->ptable)
@@ -57,8 +69,13 @@ abstract class FileCredit extends \Module
 			case 'tl_calendar_events':
 				$autoitem = 'events';
 				break;
+			default: 
+				if(isset($GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable]))
+				{
+					$autoitem = $GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable];
+				}
 		}
-
+		
 		// Load the URL from cache
 		if (isset(self::$arrUrlCache[$strCacheKey]))
 		{
@@ -82,14 +99,29 @@ abstract class FileCredit extends \Module
 		$arrAllowedTypes = trimsplit(',', strtolower($GLOBALS['TL_CONFIG']['validImageTypes']));
 
 		$arrIds = $this->getChildRecords(array($this->defineRoot), 'tl_page');
-
+		
 		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrAllowedTypes);
-		
 		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($arrIds, $arrAllowedTypes);
+		$objMultiSelectedCredits = FileCreditModel::findMultiplePublishedBySelectedCredits(deserialize(($this->selectedCredits)));
 		
-		if($objSingleSRCCredits === null || $objMultiSRCCredits === null) return null;
-
-		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits);
+		if($objSingleSRCCredits === null)
+		{
+			$objSingleSRCCredits = array();
+		}
+		
+		if($objMultiSRCCredits === null)
+		{
+			$objMultiSRCCredits = array();
+		}
+		
+		if($objMultiSelectedCredits === null) 
+		{
+			$objMultiSelectedCredits = array();
+		}
+		
+		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits, $objMultiSelectedCredits);
+		
+		if($arrAll === null) return null;
 		
 		uasort($arrAll, 'HeimrichHannot\FileCredit\FileCredit::sortByParent');
 		

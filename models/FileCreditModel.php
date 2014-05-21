@@ -5,6 +5,33 @@ namespace HeimrichHannot\FileCredit;
 class FileCreditModel extends \FilesModel
 {
 	protected static $strTable = 'tl_files';
+	
+	public static function findMultiplePublishedBySelectedCredits($arrCredits)
+	{
+		$arrReturn = null;
+		
+		$objDatabase = \Database::getInstance();
+		
+		$t = static::$strTable;
+		
+		foreach($arrCredits as $arrCredit)
+		{
+			$objResult = $objDatabase->prepare
+			(
+				"
+				SELECT NULL AS cid, NULL as ptable, NULL as parent, $t.* FROM $t WHERE id = ?
+				"
+			)->execute($arrCredit['file']);
+			
+			if ($objResult->numRows < 1) continue;
+			
+			$objResult->usage = $arrCredit['usage'];
+			
+			$arrReturn[] = (object) $objResult->row();
+		}
+		
+		return empty($arrReturn) ? null : $arrReturn;
+	}
 
 	public static function findMultiplePublishedMultiSRCContentElements($arrIds, $arrExtensions, array $arrOptions=array())
 	{
@@ -47,7 +74,41 @@ class FileCreditModel extends \FilesModel
 			
 			if($objFiles === null) continue;
 			
-			$arrReturn[] = (object) array_merge($objResult->row(), $objFiles->row());
+			if($objFiles->type == 'folder')
+			{
+				$objSubfiles = \FilesModel::findByPid($objFiles->uuid);
+				
+				if ($objSubfiles === null)
+				{
+					continue;
+				}
+				
+				while ($objSubfiles->next())
+				{
+					// Skip subfolders
+					if ($objSubfiles->type == 'folder')
+					{
+						continue;
+					}
+				
+					if (!in_array($objSubfiles->extension, $arrExtensions))
+					{
+						continue;
+					}
+					
+					if(!$objSubfiles->copyright)
+					{
+						continue;
+					}
+					
+					$arrReturn[] = (object) array_merge($objResult->row(), $objSubfiles->row());
+				}
+			}
+			else
+			{
+				$arrReturn[] = (object) array_merge($objResult->row(), $objFiles->row());
+			}
+			
 		}
 		
 		return empty($arrReturn) ? null : $arrReturn;
@@ -72,6 +133,24 @@ class FileCreditModel extends \FilesModel
 		$t = static::$strTable;
 
 		$objDatabase = \Database::getInstance();
+		
+		
+		// support additional tables
+		if(is_array($GLOBALS['TL_FILECREDIT_MODELS']))
+		{
+			foreach($GLOBALS['TL_FILECREDIT_MODELS'] as $table => $autoitem)
+			{
+				$addTableSql .= "
+						
+					UNION ALL
+					
+					SELECT c.id AS cid, '$table' as ptable, c.id as parent, $t.*
+					FROM $t
+					LEFT JOIN $table c ON c.singleSRC = $t.uuid
+					WHERE c.addImage = 1";
+			}
+		}
+		
 
 		$objResult = $objDatabase->prepare
 		(
@@ -98,6 +177,10 @@ class FileCreditModel extends \FilesModel
 					FROM $t
 					LEFT JOIN tl_news c ON c.singleSRC = $t.uuid
 					WHERE c.addImage = 1
+				
+					-- support addional tables
+					$addTableSql
+				
 				) AS files
 				WHERE files.extension IN('" . implode("','", $arrExtensions) . "')
 				AND files.copyright != '' AND files.type = 'file' 

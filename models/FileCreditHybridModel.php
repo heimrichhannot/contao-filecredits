@@ -2,18 +2,20 @@
 
 namespace HeimrichHannot\FileCredit;
 
-class FileCreditHybridModel
+class FileCreditHybridModel extends \Controller
 {
-
-	public static function findRelatedByCredit($objCredit)
+	public $result;
+	public $file;
+	public $parent;
+	public $page;
+	
+	public function findRelatedByCredit($objCredit)
 	{
-		$objThis = new FileCreditHybridModel();
-
-		$objThis->result = $objCredit;
+		$this->result = $objCredit;
 
 		$objFile = \FilesModel::findByPk($objCredit->id);
 		if($objFile === null) return null;
-		$objThis->file = $objFile;
+		$this->file = $objFile;
 		
 		switch($objCredit->ptable)
 		{
@@ -21,11 +23,11 @@ class FileCreditHybridModel
 
 				$objArticle = \ArticleModel::findPublishedById($objCredit->parent);
 				if($objArticle === null) return null;
-				$objThis->parent = $objArticle;
+				$this->parent = $objArticle;
 
 				$objJumpTo = \PageModel::findPublishedById($objArticle->pid);
 				if($objJumpTo == null) return null;
-				$objThis->page = $objJumpTo;
+				$this->page = $objJumpTo;
 
 			break;
 			case 'tl_news':
@@ -34,15 +36,52 @@ class FileCreditHybridModel
 				
 				if($objNews === null) return null;
 
-				$objThis->parent = $objNews->current();
+				$this->parent = $objNews->current();
 
 				$objNewsArchive = \NewsArchiveModel::findByPk($objNews->pid);
 
 				$objJumpTo = \PageModel::findPublishedById($objNewsArchive->jumpTo);
 				if($objJumpTo == null) return null;
-				$objThis->page = $objJumpTo;
+				$this->page = $objJumpTo;
 
 			break;
+			default:
+				$this->parent = null;
+				$this->page = null;
+				
+				// TODO refactor
+				if(isset($GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->ptable]))
+				{
+					$strClass = $GLOBALS['TL_MODELS'][$objCredit->ptable];
+					
+					if (!$this->classFileExists($strClass)) return null;
+					
+					$this->loadDataContainer($objCredit->ptable);
+					
+					$archiveTable = $GLOBALS['TL_DCA'][$objCredit->ptable]['config']['ptable'];
+					
+					if(!$archiveTable || !isset($GLOBALS['TL_MODELS'][$archiveTable])) return null;
+
+					$strArchiveClass = $GLOBALS['TL_MODELS'][$archiveTable];
+					
+					if (!$this->classFileExists($strArchiveClass)) return null;
+					
+					$objItem = $strClass::findByPk($objCredit->parent);
+					
+					if($objItem === null) return null;
+					
+					$this->parent = $objItem->current();
+					
+					$objItemArchive = $strArchiveClass::findByPk($objItem->pid);
+					
+					
+					$objJumpTo = \PageModel::findPublishedById($objItemArchive->jumpTo);
+					
+					if($objJumpTo == null) return null;
+					
+					$this->page = $objJumpTo;
+				}
+				
 		}
 
 		return $objThis;

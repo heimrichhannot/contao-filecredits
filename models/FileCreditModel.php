@@ -88,7 +88,27 @@ class FileCreditModel extends \FilesModel
 					// Skip subfolders
 					if ($objSubfiles->type == 'folder')
 					{
-						continue;
+						$objFolderFiles = \FilesModel::findMultipleFilesByFolder($objSubfiles->path);
+						
+						if($objFolderFiles === null)
+						{
+							continue;
+						}
+						
+						while($objFolderFiles->next())
+						{
+							if (!in_array($objFolderFiles->extension, $arrExtensions))
+							{
+								continue;
+							}
+								
+							if(!$objFolderFiles->copyright)
+							{
+								continue;
+							}
+							
+							$arrReturn[] = (object) array_merge($objResult->row(), $objFolderFiles->row());
+						}
 					}
 				
 					if (!in_array($objSubfiles->extension, $arrExtensions))

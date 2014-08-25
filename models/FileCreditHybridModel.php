@@ -2,12 +2,17 @@
 
 namespace HeimrichHannot\FileCredit;
 
-class FileCreditHybridModel extends \Controller
+class FileCreditHybridModel extends \System
 {
 	public $result;
 	public $file;
 	public $parent;
 	public $page;
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
 	
 	public function findRelatedByCredit($objCredit)
 	{
@@ -41,6 +46,7 @@ class FileCreditHybridModel extends \Controller
 				$objNewsArchive = \NewsArchiveModel::findByPk($objNews->pid);
 
 				$objJumpTo = \PageModel::findPublishedById($objNewsArchive->jumpTo);
+
 				if($objJumpTo == null) return null;
 				$this->page = $objJumpTo;
 
@@ -84,6 +90,6 @@ class FileCreditHybridModel extends \Controller
 				
 		}
 
-		return $objThis;
+		return $this;
 	}
 }

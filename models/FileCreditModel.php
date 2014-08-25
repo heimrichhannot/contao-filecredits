@@ -58,7 +58,7 @@ class FileCreditModel extends \FilesModel
 				SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC FROM tl_content c WHERE c.multiSRC IS NOT NULL
 			"
 		)->execute();
-		
+
 		if ($objResult->numRows < 1)
 		{
 			return null;
@@ -73,7 +73,12 @@ class FileCreditModel extends \FilesModel
 			$objFiles = \FilesModel::findMultipleByUuids($arrUuids);
 			
 			if($objFiles === null) continue;
-			
+
+			if(!$objFiles->copyright)
+			{
+				continue;
+			}
+
 			if($objFiles->type == 'folder')
 			{
 				$objSubfiles = \FilesModel::findByPid($objFiles->uuid);
@@ -115,7 +120,8 @@ class FileCreditModel extends \FilesModel
 					{
 						continue;
 					}
-					
+
+
 					if(!$objSubfiles->copyright)
 					{
 						continue;
@@ -130,7 +136,7 @@ class FileCreditModel extends \FilesModel
 			}
 			
 		}
-		
+
 		return empty($arrReturn) ? null : $arrReturn;
 	}
 	

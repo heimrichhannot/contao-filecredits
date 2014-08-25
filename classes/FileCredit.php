@@ -15,9 +15,9 @@ abstract class FileCredit extends \Module
 		global $objPage;
 
 		$objCredit = new FileCreditHybridModel();
-		
+
 		$objCredit->findRelatedByCredit($objItem);
-		
+
 		if(is_null($objCredit)) return null;
 
 		$objTemplate = new \FrontendTemplate('filecredit_default');
@@ -98,8 +98,8 @@ abstract class FileCredit extends \Module
 	{
 		$arrAllowedTypes = trimsplit(',', strtolower($GLOBALS['TL_CONFIG']['validImageTypes']));
 
-		$arrIds = $this->getChildRecords(array($this->defineRoot), 'tl_page');
-		
+		$arrIds = $this->Database->getChildRecords(array($this->defineRoot), 'tl_page');
+
 		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrAllowedTypes);
 		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($arrIds, $arrAllowedTypes);
 		$objMultiSelectedCredits = FileCreditModel::findMultiplePublishedBySelectedCredits(deserialize(($this->selectedCredits)));

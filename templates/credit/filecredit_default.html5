@@ -4,8 +4,8 @@
 <?php echo $this->pageTitle; ?>
 <?php if($this->link): ?>
 </a>
-<?php endif; ?>
 &nbsp;–&nbsp;
+<?php endif; ?>
 <?php echo $this->copyright; ?>
 &nbsp;–&nbsp;
 <a href="<?php echo $this->path; ?>" title="<?php echo $this->copyright; ?>" <?php echo $this->attribute; ?>>

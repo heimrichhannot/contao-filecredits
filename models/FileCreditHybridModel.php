@@ -2,7 +2,7 @@
 
 namespace HeimrichHannot\FileCredit;
 
-class FileCreditHybridModel extends \System
+class FileCreditHybridModel extends \Controller
 {
 	public $result;
 	public $file;

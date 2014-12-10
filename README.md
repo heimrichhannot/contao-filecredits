@@ -1,10 +1,13 @@
 # Filecredits
 
-Add 
+Contao module that adds credit support for images.
 
-# Register custom modules
+## Register custom modules
 
-Einfach der Globalen einen Eintrag hinzufügen. Der Key sollte die Tabelle des Kindelements enthalten und der Wert das autoitem (z.B. items);
+Register your custom module/table, the key must contain the table name and value is the auto item value (e.g. items).
 
-Beispiel: 
+Example: 
+
+'''
 $GLOBALS['TL_FILECREDIT_MODELS']['tl_leisure_tips'] = 'items';
+'''

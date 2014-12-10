@@ -1,6 +1,8 @@
 # Filecredits
 
-# Eigene Module 
+Add 
+
+# Register custom modules
 
 Einfach der Globalen einen Eintrag hinzufügen. Der Key sollte die Tabelle des Kindelements enthalten und der Wert das autoitem (z.B. items);
 

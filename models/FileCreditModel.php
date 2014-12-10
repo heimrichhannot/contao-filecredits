@@ -159,24 +159,36 @@ class FileCreditModel extends \FilesModel
 		$t = static::$strTable;
 
 		$objDatabase = \Database::getInstance();
-		
-		
+
+
 		// support additional tables
 		if(is_array($GLOBALS['TL_FILECREDIT_MODELS']))
 		{
 			foreach($GLOBALS['TL_FILECREDIT_MODELS'] as $table => $autoitem)
 			{
 				$addTableSql .= "
-						
+
 					UNION ALL
-					
+
 					SELECT c.id AS cid, '$table' as ptable, c.id as parent, $t.*
 					FROM $t
 					LEFT JOIN $table c ON c.singleSRC = $t.uuid
 					WHERE c.addImage = 1";
 			}
 		}
-		
+
+		\Controller::loadDataContainer('tl_content');
+
+		$arrPalettes = $GLOBALS['TL_DCA']['tl_content']['palettes'];
+
+		$arrImagePalettes = array('image');
+
+		foreach($arrPalettes as $key => $strPalette)
+		{
+			if(is_array($strPalette) || strstr($strPalette, 'addImage') === false) continue;
+
+			$arrImagePalettes[] = $key;
+		}
 
 		$objResult = $objDatabase->prepare
 		(
@@ -187,7 +199,7 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_content c ON c.singleSRC = $t.uuid
-					WHERE (c.type = 'image' OR c.type='text' AND c.addImage = 1)
+					WHERE (c.type IN('" . implode("','", $arrImagePalettes) . "') AND c.addImage = 1)
 
 					UNION ALL
 
@@ -203,13 +215,13 @@ class FileCreditModel extends \FilesModel
 					FROM $t
 					LEFT JOIN tl_news c ON c.singleSRC = $t.uuid
 					WHERE c.addImage = 1
-				
+
 					-- support addional tables
 					$addTableSql
-				
+
 				) AS files
 				WHERE files.extension IN('" . implode("','", $arrExtensions) . "')
-				AND files.copyright != '' AND files.type = 'file' 
+				AND files.copyright != '' AND files.type = 'file'
 				AND cid IS NOT NULL
 			"
 		)->execute();
@@ -218,14 +230,14 @@ class FileCreditModel extends \FilesModel
 		{
 			return null;
 		}
-		
+
 		$arrReturn = null;
-		
+
 		while($objResult->next())
 		{
 			$arrReturn[] = (object) $objResult->row();
 		}
-		
+
 		return empty($arrReturn) ? null : $arrReturn;
 	}
 }

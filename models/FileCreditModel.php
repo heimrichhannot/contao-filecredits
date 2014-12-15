@@ -181,7 +181,8 @@ class FileCreditModel extends \FilesModel
 
 		$arrPalettes = $GLOBALS['TL_DCA']['tl_content']['palettes'];
 
-		$arrImagePalettes = array('image');
+		$arrFlatPalettes = array('image');
+		$arrImagePalettes = array();
 
 		foreach($arrPalettes as $key => $strPalette)
 		{
@@ -199,15 +200,14 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_content c ON c.singleSRC = $t.uuid
-					WHERE (c.type IN('" . implode("','", $arrImagePalettes) . "') AND c.addImage = 1)
+					WHERE (c.type IN('" . implode("','", $arrFlatPalettes) . "') OR (c.type IN('" . implode("','", $arrImagePalettes) . "') AND c.addImage = 1))
 
 					UNION ALL
 
 					-- text support
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
-					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%')
-
+					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%
 					UNION ALL
 
 					-- news support

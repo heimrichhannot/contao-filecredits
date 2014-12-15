@@ -207,7 +207,8 @@ class FileCreditModel extends \FilesModel
 					-- text support
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
-					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%
+					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%')
+
 					UNION ALL
 
 					-- news support

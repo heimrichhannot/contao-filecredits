@@ -28,12 +28,7 @@ class ModuleFileCredit extends FileCredit
 	{
 		$objCredits = $this->getFileCredits();
 
-		if($objCredits === null)
-		{
-			$this->Template = new \FrontendTemplate('mod_filecredit_empty');
-			$this->Template->empty = $GLOBALS['TL_LANG']['MSC']['emptyCreditList'];
-			return;
-		}
+		$this->Template->empty = $GLOBALS['TL_LANG']['MSC']['emptyCreditList'];
 
 		$arrCredits = array();
 		

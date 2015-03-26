@@ -161,6 +161,8 @@ class FileCreditModel extends \FilesModel
 		$objDatabase = \Database::getInstance();
 
 
+		$addTableSql = '';
+
 		// support additional tables
 		if(is_array($GLOBALS['TL_FILECREDIT_MODELS']))
 		{
@@ -204,12 +206,12 @@ class FileCreditModel extends \FilesModel
 
 					UNION ALL
 
-					-- text support
-					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
-					FROM $t
-					LEFT JOIN tl_content c ON c.text LIKE CONCAT('%',$t.path,'%')
+					-- text support -- too slow
+					#SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
+					#FROM $t
+					#LEFT JOIN tl_content c ON c.text REGEXP '\.(" . implode('|', $arrExtensions) . ")'
 
-					UNION ALL
+					#UNION ALL
 
 					-- news support
 					SELECT c.id AS cid, 'tl_news' as ptable, c.id as parent, $t.*
@@ -221,12 +223,19 @@ class FileCreditModel extends \FilesModel
 					$addTableSql
 
 				) AS files
-				WHERE files.extension IN('" . implode("','", $arrExtensions) . "')
-				AND files.copyright != '' AND files.type = 'file'
+				WHERE
+				#files.extension IN('" . implode("','", $arrExtensions) . "') AND
+				files.copyright != '' AND files.type = 'file'
 				AND cid IS NOT NULL
 			"
 		)->execute();
-
+		
+		ob_start();
+		print_r($objResult);
+		print "\n";
+		file_put_contents(TL_ROOT . '/debug.txt', ob_get_contents(), FILE_APPEND);
+		ob_end_clean();
+		
 		if ($objResult->numRows < 1)
 		{
 			return null;

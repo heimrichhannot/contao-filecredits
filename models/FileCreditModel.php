@@ -230,11 +230,6 @@ class FileCreditModel extends \FilesModel
 			"
 		)->execute();
 		
-		ob_start();
-		print_r($objResult);
-		print "\n";
-		file_put_contents(TL_ROOT . '/debug.txt', ob_get_contents(), FILE_APPEND);
-		ob_end_clean();
 		
 		if ($objResult->numRows < 1)
 		{

@@ -20,9 +20,6 @@ class ModuleFileCredit extends FileCredit
 
 			return $objTemplate->parse();
 		}
-		
-		$this->arrPids = \Database::getInstance()->getChildRecords(array($this->rootPage), 'tl_page');
-		
 		// TEST
 		return parent::generate();
 	}

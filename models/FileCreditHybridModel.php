@@ -14,7 +14,7 @@ class FileCreditHybridModel extends \Controller
 		parent::__construct();
 	}
 	
-	public function findRelatedByCredit($objCredit, $arrPids)
+	public function findRelatedByCredit($objCredit)
 	{
 		$this->result = $objCredit;
 
@@ -30,17 +30,15 @@ class FileCreditHybridModel extends \Controller
 				if($objArticle === null) return null;
 				$this->parent = $objArticle;
 
-				$objJumpTo = $objArticle->getRelated('pid');
+				$objJumpTo = \PageModel::findPublishedById($objArticle->pid);
 				if($objJumpTo == null) return null;
-
-				if(!in_array($objJumpTo->id, $arrPids)) return null;
-				
 				$this->page = $objJumpTo;
 
 			break;
 			case 'tl_news':
-				$objNews = \NewsModel::findByPk($objCredit->parent);
 
+				$objNews = \NewsModel::findByPk($objCredit->parent);
+				
 				if($objNews === null) return null;
 
 				$this->parent = $objNews->current();
@@ -48,15 +46,11 @@ class FileCreditHybridModel extends \Controller
 				$objNewsArchive = \NewsArchiveModel::findByPk($objNews->pid);
 
 				$objJumpTo = \PageModel::findPublishedById($objNewsArchive->jumpTo);
-				
+
 				if($objJumpTo == null) return null;
-
-				if(!in_array($objJumpTo->id, $arrPids)) return null;
-
 				$this->page = $objJumpTo;
 
-
-				break;
+			break;
 			default:
 				$this->parent = null;
 				$this->page = null;
@@ -90,8 +84,6 @@ class FileCreditHybridModel extends \Controller
 					$objJumpTo = \PageModel::findPublishedById($objItemArchive->jumpTo);
 					
 					if($objJumpTo == null) return null;
-
-					if(!in_array($objJumpTo->id, $arrPids)) return null;
 					
 					$this->page = $objJumpTo;
 				}

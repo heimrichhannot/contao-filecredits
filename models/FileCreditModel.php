@@ -230,7 +230,6 @@ class FileCreditModel extends \FilesModel
 			"
 		)->execute();
 		
-		
 		if ($objResult->numRows < 1)
 		{
 			return null;

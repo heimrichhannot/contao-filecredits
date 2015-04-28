@@ -10,13 +10,15 @@ abstract class FileCredit extends \Module
 	 */
 	private static $arrUrlCache = array();
 
+	protected $arrPids = array();
+
 	protected function parseCredit($objItem)
 	{
 		global $objPage;
 
 		$objCredit = new FileCreditHybridModel();
 
-		$objCredit->findRelatedByCredit($objItem);
+		$objCredit = $objCredit->findRelatedByCredit($objItem, $this->arrPids);
 
 		if(is_null($objCredit)) return null;
 
@@ -69,7 +71,7 @@ abstract class FileCredit extends \Module
 			case 'tl_calendar_events':
 				$autoitem = 'events';
 				break;
-			default: 
+			default:
 				if(isset($GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable]))
 				{
 					$autoitem = $GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable];
@@ -98,10 +100,8 @@ abstract class FileCredit extends \Module
 	{
 		$arrAllowedTypes = trimsplit(',', strtolower($GLOBALS['TL_CONFIG']['validImageTypes']));
 
-		$arrIds = $this->Database->getChildRecords(array($this->defineRoot), 'tl_page');
-
-		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrAllowedTypes);
-		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($arrIds, $arrAllowedTypes);
+		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($this->arrPids, $arrAllowedTypes);
+		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($this->arrPids, $arrAllowedTypes);
 		$objMultiSelectedCredits = FileCreditModel::findMultiplePublishedBySelectedCredits(deserialize(($this->selectedCredits)));
 		
 		if($objSingleSRCCredits === null)
@@ -114,7 +114,7 @@ abstract class FileCredit extends \Module
 			$objMultiSRCCredits = array();
 		}
 		
-		if($objMultiSelectedCredits === null) 
+		if($objMultiSelectedCredits === null)
 		{
 			$objMultiSelectedCredits = array();
 		}

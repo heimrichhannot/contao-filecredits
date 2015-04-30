@@ -202,7 +202,7 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_content c ON c.singleSRC = $t.uuid
-					WHERE (c.type IN('" . implode("','", $arrFlatPalettes) . "') OR (c.type IN('" . implode("','", $arrImagePalettes) . "') AND c.addImage = 1))
+					WHERE (c.type IN('" . implode("','", $arrFlatPalettes) . "') OR (c.type IN('" . implode("','", $arrImagePalettes) . "') AND c.addImage = 1)) AND c.invisible = ''
 
 					UNION ALL
 
@@ -217,7 +217,7 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, 'tl_news' as ptable, c.id as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_news c ON c.singleSRC = $t.uuid
-					WHERE c.addImage = 1
+					WHERE c.addImage = 1 AND c.published = 1
 
 					-- support addional tables
 					$addTableSql

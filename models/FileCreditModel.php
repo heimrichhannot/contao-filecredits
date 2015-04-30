@@ -51,91 +51,91 @@ class FileCreditModel extends \FilesModel
 		$t = static::$strTable;
 		
 		$objDatabase = \Database::getInstance();
-		
-		$objResult = $objDatabase->prepare
-		(
-			"
-				SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC FROM tl_content c WHERE c.multiSRC IS NOT NULL
-			"
-		)->execute();
-
-		if ($objResult->numRows < 1)
-		{
-			return null;
-		}
-		
-		$arrReturn = null;
-		
-		while($objResult->next())
-		{
-			$arrUuids = deserialize($objResult->multiSRC, true);
-			
-			$objFiles = \FilesModel::findMultipleByUuids($arrUuids);
-			
-			if($objFiles === null) continue;
-
-			if(!$objFiles->copyright)
-			{
-				continue;
-			}
-
-			if($objFiles->type == 'folder')
-			{
-				$objSubfiles = \FilesModel::findByPid($objFiles->uuid);
-				
-				if ($objSubfiles === null)
-				{
-					continue;
-				}
-				
-				while ($objSubfiles->next())
-				{
-					// Skip subfolders
-					if ($objSubfiles->type == 'folder')
-					{
-						$objFolderFiles = \FilesModel::findMultipleFilesByFolder($objSubfiles->path);
-						
-						if($objFolderFiles === null)
-						{
-							continue;
-						}
-						
-						while($objFolderFiles->next())
-						{
-							if (!in_array($objFolderFiles->extension, $arrExtensions))
-							{
-								continue;
-							}
-								
-							if(!$objFolderFiles->copyright)
-							{
-								continue;
-							}
-							
-							$arrReturn[] = (object) array_merge($objResult->row(), $objFolderFiles->row());
-						}
-					}
-				
-					if (!in_array($objSubfiles->extension, $arrExtensions))
-					{
-						continue;
-					}
 
 
-					if(!$objSubfiles->copyright)
-					{
-						continue;
-					}
-					
-					$arrReturn[] = (object) array_merge($objResult->row(), $objSubfiles->row());
-				}
-			}
-			else
-			{
-				$arrReturn[] = (object) array_merge($objResult->row(), $objFiles->row());
-			}
-			
-		}
+        // get names of parent tables (tl_news, tl_article, tl_calendar_events)
+        $objTable = $objDatabase->prepare("SELECT DISTINCT ptable FROM tl_content")->execute();
+
+        if ($objTable->numRows < 1)
+        {
+            return null;
+        }
+
+        $arrReturn = null;
+
+        while($objTable->next()) {
+
+            $objResult = $objDatabase->prepare
+            (
+                "
+                    SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC
+                    FROM tl_content c
+                    LEFT JOIN $objTable->ptable p ON p.id = c.pid
+                    WHERE c.multiSRC IS NOT NULL AND c.invisible = '' AND p.published = 1
+                "
+            )->execute();
+
+            if ($objResult->numRows < 1) {
+                return null;
+            }
+            
+            while ($objResult->next()) {
+                $arrUuids = deserialize($objResult->multiSRC, true);
+
+                $objFiles = \FilesModel::findMultipleByUuids($arrUuids);
+
+                if ($objFiles === null) continue;
+
+                if (!$objFiles->copyright) {
+                    continue;
+                }
+
+                if ($objFiles->type == 'folder') {
+                    $objSubfiles = \FilesModel::findByPid($objFiles->uuid);
+
+                    if ($objSubfiles === null) {
+                        continue;
+                    }
+
+                    while ($objSubfiles->next()) {
+                        // Skip subfolders
+                        if ($objSubfiles->type == 'folder') {
+                            $objFolderFiles = \FilesModel::findMultipleFilesByFolder($objSubfiles->path);
+
+                            if ($objFolderFiles === null) {
+                                continue;
+                            }
+
+                            while ($objFolderFiles->next()) {
+                                if (!in_array($objFolderFiles->extension, $arrExtensions)) {
+                                    continue;
+                                }
+
+                                if (!$objFolderFiles->copyright) {
+                                    continue;
+                                }
+
+                                $arrReturn[] = (object)array_merge($objResult->row(), $objFolderFiles->row());
+                            }
+                        }
+
+                        if (!in_array($objSubfiles->extension, $arrExtensions)) {
+                            continue;
+                        }
+
+
+                        if (!$objSubfiles->copyright) {
+                            continue;
+                        }
+
+                        $arrReturn[] = (object)array_merge($objResult->row(), $objSubfiles->row());
+                    }
+                } else {
+                    $arrReturn[] = (object)array_merge($objResult->row(), $objFiles->row());
+                }
+
+            }
+        }
 
 		return empty($arrReturn) ? null : $arrReturn;
 	}

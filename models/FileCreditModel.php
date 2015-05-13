@@ -14,7 +14,8 @@ class FileCreditModel extends \FilesModel
 		
 		$t = static::$strTable;
 		
-		foreach ($arrCredits as $arrCredit) {
+		foreach($arrCredits as $arrCredit)
+		{
 			$objResult = $objDatabase->prepare
 			(
 				"
@@ -22,9 +23,7 @@ class FileCreditModel extends \FilesModel
 				"
 			)->execute($arrCredit['file']);
 			
-			if ($objResult->numRows < 1) {
-				continue;
-			}
+			if ($objResult->numRows < 1) continue;
 			
 			$objResult->usage = $arrCredit['usage'];
 			
@@ -34,14 +33,17 @@ class FileCreditModel extends \FilesModel
 		return empty($arrReturn) ? null : $arrReturn;
 	}
 
-	public static function findMultiplePublishedMultiSRCContentElements($arrIds, $arrExtensions, array $arrOptions = array())
+	public static function findMultiplePublishedMultiSRCContentElements($arrIds, $arrExtensions, array $arrOptions=array())
 	{
-		if (!is_array($arrIds) || empty($arrIds) || !is_array($arrExtensions) || empty($arrExtensions)) {
+		if (!is_array($arrIds) || empty($arrIds) || !is_array($arrExtensions) || empty($arrExtensions))
+		{
 			return null;
 		}
 		
-		foreach ($arrExtensions as $k => $v) {
-			if (!preg_match('/^[a-z0-9]{2,5}$/i', $v)) {
+		foreach ($arrExtensions as $k=>$v)
+		{
+			if (!preg_match('/^[a-z0-9]{2,5}$/i', $v))
+			{
 				unset($arrExtensions[$k]);
 			}
 		}
@@ -49,104 +51,106 @@ class FileCreditModel extends \FilesModel
 		$t = static::$strTable;
 		
 		$objDatabase = \Database::getInstance();
+		
+		$objResult = $objDatabase->prepare
+		(
+			"
+				SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC FROM tl_content c WHERE c.multiSRC IS NOT NULL
+			"
+		)->execute();
 
-
-		// get names of parent tables (tl_news, tl_article, tl_calendar_events)
-		$objTable = $objDatabase->prepare("SELECT DISTINCT ptable FROM tl_content")->execute();
-
-		if ($objTable->numRows < 1) {
+		if ($objResult->numRows < 1)
+		{
 			return null;
 		}
-
+		
 		$arrReturn = null;
+		
+		while($objResult->next())
+		{
+			$arrUuids = deserialize($objResult->multiSRC, true);
+			
+			$objFiles = \FilesModel::findMultipleByUuids($arrUuids);
+			
+			if($objFiles === null) continue;
 
-		while ($objTable->next()) {
-
-			$objResult = $objDatabase->prepare
-			(
-				"
-                    SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC
-                    FROM tl_content c
-                    LEFT JOIN $objTable->ptable p ON p.id = c.pid
-                    WHERE c.multiSRC IS NOT NULL AND c.invisible = ''
-                "
-			)->execute();
-
-			if ($objResult->numRows < 1) {
-				return null;
+			if(!$objFiles->copyright)
+			{
+				continue;
 			}
 
-			while ($objResult->next()) {
-				$arrUuids = deserialize($objResult->multiSRC, true);
-
-				$objFiles = \FilesModel::findMultipleByUuids($arrUuids);
-
-				if ($objFiles === null) {
+			if($objFiles->type == 'folder')
+			{
+				$objSubfiles = \FilesModel::findByPid($objFiles->uuid);
+				
+				if ($objSubfiles === null)
+				{
 					continue;
 				}
-
-				if (!$objFiles->copyright) {
-					continue;
-				}
-
-				if ($objFiles->type == 'folder') {
-					$objSubfiles = \FilesModel::findByPid($objFiles->uuid);
-
-					if ($objSubfiles === null) {
+				
+				while ($objSubfiles->next())
+				{
+					// Skip subfolders
+					if ($objSubfiles->type == 'folder')
+					{
+						$objFolderFiles = \FilesModel::findMultipleFilesByFolder($objSubfiles->path);
+						
+						if($objFolderFiles === null)
+						{
+							continue;
+						}
+						
+						while($objFolderFiles->next())
+						{
+							if (!in_array($objFolderFiles->extension, $arrExtensions))
+							{
+								continue;
+							}
+								
+							if(!$objFolderFiles->copyright)
+							{
+								continue;
+							}
+							
+							$arrReturn[] = (object) array_merge($objResult->row(), $objFolderFiles->row());
+						}
+					}
+				
+					if (!in_array($objSubfiles->extension, $arrExtensions))
+					{
 						continue;
 					}
 
-					while ($objSubfiles->next()) {
-						// Skip subfolders
-						if ($objSubfiles->type == 'folder') {
-							$objFolderFiles = \FilesModel::findMultipleFilesByFolder($objSubfiles->path);
 
-							if ($objFolderFiles === null) {
-								continue;
-							}
-
-							while ($objFolderFiles->next()) {
-								if (!in_array($objFolderFiles->extension, $arrExtensions)) {
-									continue;
-								}
-
-								if (!$objFolderFiles->copyright) {
-									continue;
-								}
-
-								$arrReturn[] = (object) array_merge($objResult->row(), $objFolderFiles->row());
-							}
-						}
-
-						if (!in_array($objSubfiles->extension, $arrExtensions)) {
-							continue;
-						}
-
-
-						if (!$objSubfiles->copyright) {
-							continue;
-						}
-
-						$arrReturn[] = (object) array_merge($objResult->row(), $objSubfiles->row());
+					if(!$objSubfiles->copyright)
+					{
+						continue;
 					}
-				} else {
-					$arrReturn[] = (object) array_merge($objResult->row(), $objFiles->row());
+					
+					$arrReturn[] = (object) array_merge($objResult->row(), $objSubfiles->row());
 				}
-
 			}
+			else
+			{
+				$arrReturn[] = (object) array_merge($objResult->row(), $objFiles->row());
+			}
+			
 		}
 
 		return empty($arrReturn) ? null : $arrReturn;
 	}
 	
-	public static function findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrExtensions, array $arrOptions = array())
+	public static function findMultiplePublishedSingleSRCContentElementsByExtensions($arrIds, $arrExtensions, array $arrOptions=array())
 	{
-		if (!is_array($arrIds) || empty($arrIds) || !is_array($arrExtensions) || empty($arrExtensions)) {
+		if (!is_array($arrIds) || empty($arrIds) || !is_array($arrExtensions) || empty($arrExtensions))
+		{
 			return null;
 		}
 
-		foreach ($arrExtensions as $k => $v) {
-			if (!preg_match('/^[a-z0-9]{2,5}$/i', $v)) {
+		foreach ($arrExtensions as $k=>$v)
+		{
+			if (!preg_match('/^[a-z0-9]{2,5}$/i', $v))
+			{
 				unset($arrExtensions[$k]);
 			}
 		}
@@ -160,8 +164,10 @@ class FileCreditModel extends \FilesModel
 		$addTableSql = '';
 
 		// support additional tables
-		if (is_array($GLOBALS['TL_FILECREDIT_MODELS'])) {
-			foreach ($GLOBALS['TL_FILECREDIT_MODELS'] as $table => $autoitem) {
+		if(is_array($GLOBALS['TL_FILECREDIT_MODELS']))
+		{
+			foreach($GLOBALS['TL_FILECREDIT_MODELS'] as $table => $autoitem)
+			{
 				$addTableSql .= "
 
 					UNION ALL
@@ -177,13 +183,12 @@ class FileCreditModel extends \FilesModel
 
 		$arrPalettes = $GLOBALS['TL_DCA']['tl_content']['palettes'];
 
-		$arrFlatPalettes  = array('image');
+		$arrFlatPalettes = array('image');
 		$arrImagePalettes = array();
 
-		foreach ($arrPalettes as $key => $strPalette) {
-			if (is_array($strPalette) || strstr($strPalette, 'addImage') === false) {
-				continue;
-			}
+		foreach($arrPalettes as $key => $strPalette)
+		{
+			if(is_array($strPalette) || strstr($strPalette, 'addImage') === false) continue;
 
 			$arrImagePalettes[] = $key;
 		}
@@ -212,7 +217,7 @@ class FileCreditModel extends \FilesModel
 					SELECT c.id AS cid, 'tl_news' as ptable, c.id as parent, $t.*
 					FROM $t
 					LEFT JOIN tl_news c ON c.singleSRC = $t.uuid
-					WHERE c.addImage = 1 AND c.published = 1
+					WHERE c.addImage = 1  AND c.published = 1
 
 					-- support addional tables
 					$addTableSql
@@ -225,13 +230,15 @@ class FileCreditModel extends \FilesModel
 			"
 		)->execute();
 		
-		if ($objResult->numRows < 1) {
+		if ($objResult->numRows < 1)
+		{
 			return null;
 		}
 
 		$arrReturn = null;
 
-		while ($objResult->next()) {
+		while($objResult->next())
+		{
 			$arrReturn[] = (object) $objResult->row();
 		}
 

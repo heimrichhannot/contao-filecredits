@@ -31,6 +31,7 @@ ClassLoader::addClasses(array
 	'HeimrichHannot\FileCredit\ModuleFileCredit'      => 'system/modules/filecredits/modules/ModuleFileCredit.php',
 
 	// Classes
+	'Contao\Feed'                                     => 'system/modules/filecredits/classes/Feed.php',
 	'HeimrichHannot\FileCredit\FileCredit'            => 'system/modules/filecredits/classes/FileCredit.php',
 ));
 

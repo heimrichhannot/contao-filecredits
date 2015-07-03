@@ -63,17 +63,23 @@ class FileCreditModel extends \FilesModel
 
         $arrReturn = null;
 
-        while($objTable->next()) {
-
-            $objResult = $objDatabase->prepare
-            (
-                "
+        while($objTable->next())
+		{
+			$strQuery = "
                     SELECT c.id AS cid, c.ptable as ptable, c.pid as parent, c.multiSRC
                     FROM tl_content c
                     LEFT JOIN $objTable->ptable p ON p.id = c.pid
-                    WHERE c.multiSRC IS NOT NULL AND c.invisible = '' AND p.published = 1
-                "
-            )->execute();
+                    WHERE c.multiSRC IS NOT NULL AND c.invisible = ''";
+
+            $objStatement = $objDatabase->prepare($strQuery);
+
+
+			if(\Database::getInstance()->fieldExists('published', $objTable->ptable))
+			{
+				$strQuery . " AND p.published = 1";
+			}
+
+			$objResult = $objStatement->execute();
 
             if ($objResult->numRows < 1) {
                 return null;

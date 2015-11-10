@@ -44,6 +44,6 @@ class ModuleFileCredit extends FileCredit
 			$arrCredits[] = $strCredit;
 		}
 
-		$this->Template->credits = $arrCredits;
+		$this->Template->credits = array_unique($arrCredits);
 	}
 }

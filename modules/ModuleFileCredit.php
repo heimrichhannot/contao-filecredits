@@ -1,8 +1,17 @@
 <?php
+/**
+ * Contao Open Source CMS
+ *
+ * Copyright (c) 2015 Heimrich & Hannot GmbH
+ *
+ * @package filecredits
+ * @author  Rico Kaltofen <r.kaltofen@heimrich-hannot.de>
+ * @license http://www.gnu.org/licences/lgpl-3.0.html LGPL
+ */
 
 namespace HeimrichHannot\FileCredit;
 
-class ModuleFileCredit extends FileCredit
+class ModuleFileCredit extends \Module
 {
 	protected $strTemplate = 'mod_filecredit';
 
@@ -20,30 +29,32 @@ class ModuleFileCredit extends FileCredit
 
 			return $objTemplate->parse();
 		}
-		
-		$this->arrPids = \Database::getInstance()->getChildRecords(array($this->rootPage), 'tl_page');
-		
-		// TEST
+
+
 		return parent::generate();
 	}
 
 	protected function compile()
 	{
-		$objCredits = $this->getFileCredits();
+		$intRoot = 0;
 
-		$this->Template->empty = $GLOBALS['TL_LANG']['MSC']['emptyCreditList'];
-
-		$arrCredits = array();
-		
-		foreach($objCredits as $objCredit)
+		if ($this->defineRoot && $this->rootPage > 0)
 		{
-			$strCredit = $this->parseCredit($objCredit);
-
-			if(is_null($strCredit)) continue;
-
-			$arrCredits[] = $strCredit;
+			if (($objRoot = $this->objModel->getRelated('rootPage')) !== null)
+			{
+				$intRoot = $objRoot->id;
+			}
 		}
 
-		$this->Template->credits = array_unique($arrCredits);
+		$objCredits = FileCreditModel::findByPublishedAndRoot($intRoot);
+
+		if($objCredits === null)
+		{
+			$this->Template->empty = $GLOBALS['TL_LANG']['MSC']['emptyCreditList'];
+			return;
+		}
+
+
+		$this->Template->credits = FileCredit::parseCredits($objCredits, $this);
 	}
 }

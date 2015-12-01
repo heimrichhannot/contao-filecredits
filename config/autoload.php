@@ -24,15 +24,17 @@ ClassLoader::addNamespaces(array
 ClassLoader::addClasses(array
 (
 	// Models
-	'HeimrichHannot\FileCredit\FileCreditModel'       => 'system/modules/filecredits/models/FileCreditModel.php',
-	'HeimrichHannot\FileCredit\FileCreditHybridModel' => 'system/modules/filecredits/models/FileCreditHybridModel.php',
+	'HeimrichHannot\FileCredit\FileCreditModel'     => 'system/modules/filecredits/models/FileCreditModel.php',
+	'HeimrichHannot\FileCredit\FileCreditPageModel' => 'system/modules/filecredits/models/FileCreditPageModel.php',
 
 	// Modules
-	'HeimrichHannot\FileCredit\ModuleFileCredit'      => 'system/modules/filecredits/modules/ModuleFileCredit.php',
+	'HeimrichHannot\FileCredit\ModuleFileCredit'    => 'system/modules/filecredits/modules/ModuleFileCredit.php',
 
 	// Classes
-	'Contao\Feed'                                     => 'system/modules/filecredits/classes/Feed.php',
-	'HeimrichHannot\FileCredit\FileCredit'            => 'system/modules/filecredits/classes/FileCredit.php',
+	'HeimrichHannot\FileCredit\Hooks'               => 'system/modules/filecredits/classes/Hooks.php',
+	'Contao\Feed'                                   => 'system/modules/filecredits/classes/Feed.php',
+	'HeimrichHannot\FileCredit\FileCreditIndex'     => 'system/modules/filecredits/classes/FileCreditIndex.php',
+	'HeimrichHannot\FileCredit\FileCredit'          => 'system/modules/filecredits/classes/FileCredit.php',
 ));
 
 

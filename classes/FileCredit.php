@@ -1,44 +1,73 @@
 <?php
+/**
+ * Contao Open Source CMS
+ *
+ * Copyright (c) 2015 Heimrich & Hannot GmbH
+ *
+ * @package filecredits
+ * @author  Rico Kaltofen <r.kaltofen@heimrich-hannot.de>
+ * @license http://www.gnu.org/licences/lgpl-3.0.html LGPL
+ */
 
 namespace HeimrichHannot\FileCredit;
 
-abstract class FileCredit extends \Module
+
+class FileCredit extends \Controller
 {
-	/**
-	 * URL cache array
-	 * @var array
-	 */
-	private static $arrUrlCache = array();
 
-	protected $arrPids = array();
-
-	protected function parseCredit($objItem)
+	public static function parseCredit(FileCreditModel $objModel, $objModule)
 	{
 		global $objPage;
 
-		$objCredit = new FileCreditHybridModel();
-
-		$objCredit = $objCredit->findRelatedByCredit($objItem, $this->arrPids);
-
-		if(is_null($objCredit)) return null;
-
 		$objTemplate = new \FrontendTemplate('filecredit_default');
 
-		$objTemplate->setData($objCredit->file->row());
-		// TODO
-		$objTemplate->link = $this->generateCreditUrl($objCredit);
-		$objTemplate->linkText = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
+		// skip if no files model exists
+		if(($objFilesModel = $objModel->getRelated('uuid')) === null)
+		{
+			return null;
+		}
 
-		// TODO
-		if($objCredit->page === null && $objCredit->result->usage)
+		// cleanup: remove credits where copyright was deleted
+		if($objFilesModel->copyright == '')
 		{
-			$objTemplate->pageTitle = $objCredit->result->usage;
-			
+			FileCreditPageModel::deleteByPid($objModel->id);
+			$objModel->delete();
+			return null;
 		}
-		else
+
+		// skip if credit occurs on no page
+		if(($objCreditPages = FileCreditPageModel::findPublishedByPids(array($objModel->id))) === null)
 		{
-			$objTemplate->pageTitle = $objCredit->page->pageTitle ? $objCredit->page->pageTitle : $objCredit->page->title;
+			return null;
 		}
+
+		$arrPages = array();
+
+		while($objCreditPages->next())
+		{
+			$arrCredit = $objCreditPages->row();
+
+			if ($arrCredit['url'] == '' && ($objTarget = \PageModel::findByPk($arrCredit['page'])) !== null)
+			{
+				$arrCredit['url'] = \Controller::generateFrontendUrl($objTarget->row());
+			}
+
+			$arrPages[] = $arrCredit;
+		}
+
+		if($arrPages === null)
+		{
+			return null;
+		}
+		
+		$objTemplate->setData($objModel->row());
+		$objTemplate->fileData = $objFilesModel->row();
+		$objTemplate->copyright = $objFilesModel->copyright;
+		$objTemplate->link = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
+		$objTemplate->pagesLabel = $GLOBALS['TL_LANG']['MSC']['creditPagesLabel'];
+		$objTemplate->path = $objFilesModel->path;
+
+		$objTemplate->pages = $arrPages;
 
 		// colorbox support
 		if ($objPage->outputFormat == 'xhtml')
@@ -47,94 +76,29 @@ abstract class FileCredit extends \Module
 		}
 		else
 		{
-			$strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objCredit->file->id), 0, 6) . ']';
+			$strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objFilesModel->id), 0, 6) . ']';
 		}
 
-		$objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $this->id . '" data-lightbox="' : ' rel="') . $strLightboxId .'"' : '');
-		
+		$objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $objModule->id . '" data-lightbox="' : ' rel="') . $strLightboxId .'"' : '');
+
 		return $objTemplate->parse();
 	}
 
-	protected function generateCreditUrl($objCredit)
+
+	public static function parseCredits(\Model\Collection $objModels, $objModule)
 	{
-		if($objCredit->page === null) return null;
-		
-		$strCacheKey = 'id-' . $objCredit->page->id . '-' . $objCredit->result->ptable . '-' . $objCredit->parent->id;
-		
-		$autoitem = null;
-		
-		switch($objCredit->result->ptable)
-		{
-			case 'tl_news':
-				$autoitem = 'items';
-				break;
-			case 'tl_calendar_events':
-				$autoitem = 'events';
-				break;
-			default:
-				if(isset($GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable]))
-				{
-					$autoitem = $GLOBALS['TL_FILECREDIT_MODELS'][$objCredit->result->ptable];
-				}
-		}
-		
-		// Load the URL from cache
-		if (isset(self::$arrUrlCache[$strCacheKey]))
-		{
-			return self::$arrUrlCache[$strCacheKey];
+		$arrCredits = array();
+
+		while ($objModels->next()) {
+
+			if (($strReturn = static::parseCredit($objModels->current(), $objModule)) === null)
+			{
+				continue;
+			}
+
+			$arrCredits[] = $strReturn;
 		}
 
-		if(is_null($autoitem))
-		{
-			self::$arrUrlCache[$strCacheKey] = $this->generateFrontendUrl($objCredit->page->row());
-		}
-		else
-		{
-			self::$arrUrlCache[$strCacheKey] = ampersand($this->generateFrontendUrl($objCredit->page->row(), (($GLOBALS['TL_CONFIG']['useAutoItem'] && !$GLOBALS['TL_CONFIG']['disableAlias']) ?  '/' : '/' . $autoitem . '/') . ((!$GLOBALS['TL_CONFIG']['disableAlias'] && $objCredit->parent->alias != '') ? $objCredit->parent->alias : $objCredit->parent->id)));
-		}
-
-		return self::$arrUrlCache[$strCacheKey];
-	}
-
-	protected function getFileCredits()
-	{
-		$arrAllowedTypes = trimsplit(',', strtolower($GLOBALS['TL_CONFIG']['validImageTypes']));
-
-		$objSingleSRCCredits = FileCreditModel::findMultiplePublishedSingleSRCContentElementsByExtensions($this->arrPids, $arrAllowedTypes);
-		$objMultiSRCCredits = FileCreditModel::findMultiplePublishedMultiSRCContentElements($this->arrPids, $arrAllowedTypes);
-		$objMultiSelectedCredits = FileCreditModel::findMultiplePublishedBySelectedCredits(deserialize(($this->selectedCredits)));
-		
-		if($objSingleSRCCredits === null)
-		{
-			$objSingleSRCCredits = array();
-		}
-		
-		if($objMultiSRCCredits === null)
-		{
-			$objMultiSRCCredits = array();
-		}
-		
-		if($objMultiSelectedCredits === null)
-		{
-			$objMultiSelectedCredits = array();
-		}
-		
-		$arrAll = array_merge($objSingleSRCCredits, $objMultiSRCCredits, $objMultiSelectedCredits);
-		
-		if($arrAll === null) return null;
-		
-		uasort($arrAll, 'HeimrichHannot\FileCredit\FileCredit::sortByParent');
-		
-		return $arrAll;
-	}
-	
-	
-	public static function sortByParent($a, $b)
-	{
-		if ($a->parent == $b->parent)
-		{
-			return 0;
-		}
-		return ($b->parent > $a->parent) ? 1 : -1;
+		return $arrCredits;
 	}
 }

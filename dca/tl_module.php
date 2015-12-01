@@ -1,6 +1,14 @@
 <?php
+/**
+ * Contao Open Source CMS
+ *
+ * Copyright (c) 2015 Heimrich & Hannot GmbH
+ *
+ * @package filecredits
+ * @author  Rico Kaltofen <r.kaltofen@heimrich-hannot.de>
+ * @license http://www.gnu.org/licences/lgpl-3.0.html LGPL
+ */
 
-use Contao\FilesModel;
 $dc = &$GLOBALS['TL_DCA']['tl_module'];
 
 $dc['palettes']['filecredit'] = '{title_legend},name,headline,type;{reference_legend:hide},defineRoot;{credit_legend},selectedCredits;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';

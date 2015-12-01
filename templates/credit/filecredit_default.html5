@@ -1,13 +1,13 @@
-<?php if($this->link): ?>
-<a href="<?php echo $this->link; ?>">
-<?php endif; ?>
-<?php echo $this->pageTitle; ?>
-<?php if($this->link): ?>
+<a href="<?= $this->path; ?>" title="<?= $this->link; ?>" <?= $this->attribute; ?>>
+	<?= $this->copyright; ?>
 </a>
-&nbsp;–&nbsp;
-<?php endif; ?>
-<?php echo $this->copyright; ?>
-&nbsp;–&nbsp;
-<a href="<?php echo $this->path; ?>" title="<?php echo $this->copyright; ?>" <?php echo $this->attribute; ?>>
-<?php echo $this->linkText; ?>
-</a>
+<span class="separator">&nbsp;–&nbsp;</span>
+<span class="credit_pages">
+	<span class="credit_pages_label"><?= $this->pageLabel; ?></span>
+	<?php foreach($this->pages as $i => $page): ?>
+		<span title="<?= $page['url']; ?>"
+			  class="credit_page credit_page_<?= ++$i; ?><?= ($i == 1 ? ' first' : ''); ?><?= $i == count($this->pages) ? ' last' : ''; ?><?= ($i%2==0  ? ' even' : ' odd'); ?>">
+			<a href="<?= $page['url']; ?>"><?= $i; ?></a>
+		</span>
+	<?php endforeach; ?>
+</span>

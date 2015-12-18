@@ -46,19 +46,9 @@ class FileCreditModel extends \Model
 		return static::findBy($arrColumns, array(bin2hex($strUuid), $intPid, $strUrl), $arrOptions);
 	}
 
-	public static function findByPublishedAndRoot($intRoot = 0, array $arrOptions=array())
+	public static function findByPublished(array $arrOptions=array())
 	{
 		$t = static::$strTable;
-
-		if($intRoot > 0)
-		{
-			$arrPids = \Database::getInstance()->getChildRecords(array($intRoot), 'tl_page');
-
-			if(!empty($arrPids))
-			{
-				$arrColumns = array("$t.pid IN(" . implode(',', array_map('intval', $arrPids)) . ")");
-			}
-		}
 
 		if (!BE_USER_LOGGED_IN)
 		{

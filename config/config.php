@@ -37,3 +37,4 @@ $GLOBALS['TL_HOOKS']['executeResize'][] = array('\HeimrichHannot\FileCredit\Hook
  */
 $GLOBALS['TL_MODELS']['tl_filecredit']       = 'HeimrichHannot\FileCredit\FileCreditModel';
 $GLOBALS['TL_MODELS']['tl_filecredit_page'] = 'HeimrichHannot\FileCredit\FileCreditPageModel';
+

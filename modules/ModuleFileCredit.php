@@ -36,17 +36,17 @@ class ModuleFileCredit extends \Module
 
 	protected function compile()
 	{
-		$intRoot = 0;
+		$arrPids = array();
 
 		if ($this->defineRoot && $this->rootPage > 0)
 		{
 			if (($objRoot = $this->objModel->getRelated('rootPage')) !== null)
 			{
-				$intRoot = $objRoot->id;
+				$arrPids = \Database::getInstance()->getChildRecords(array($objRoot->id), 'tl_page');
 			}
 		}
 
-		$objCredits = FileCreditModel::findByPublishedAndRoot($intRoot);
+		$objCredits = FileCreditModel::findByPublished();
 
 		if($objCredits === null)
 		{
@@ -55,6 +55,6 @@ class ModuleFileCredit extends \Module
 		}
 
 
-		$this->Template->credits = FileCredit::parseCredits($objCredits, $this);
+		$this->Template->credits = FileCredit::parseCredits($objCredits, $arrPids, $this);
 	}
 }

@@ -12,15 +12,21 @@
 /**
  * Fields
  */
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits'][0] = 'Aufgewählte Dateien';
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits'][1] = 'Wählen Sie zusätzliche Dateien aus, die nicht über Inhaltselement, Nachrichten etc. in der Seite eingebunden wurden. (z.B. Layout)';
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits']['file'][0] = 'Datei';
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits']['file'][1] = 'Wählen Sie eine Datei aus.'; 
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits']['usage'][0] = 'Verwendung';
-$GLOBALS['TL_LANG']['tl_module']['selectedCredits']['usage'][1] = 'Geben Sie einen Verwendungszweck (z.B. Layout) an.';
+$GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][0] = 'Sortierung';
+$GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][1] = 'Bitte wählen Sie die Sortierung der Bildquellen.';
+
 
 
 /**
  * Legends
  */
 $GLOBALS['TL_LANG']['tl_module']['credit_legend'] = 'Bildquellen';
+
+
+/**
+ * References
+ */
+$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['copyright_asc'] = 'Quellenangabe aufsteigend';
+$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['copyright_desc'] = 'Quellenangabe absteigend';
+$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['pagecount_asc'] = 'Seitenanzahl aufsteigend';
+$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['pagecount_desc'] = 'Seitenanzahl absteigend';

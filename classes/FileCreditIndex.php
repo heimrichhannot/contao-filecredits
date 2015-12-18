@@ -144,8 +144,19 @@ class FileCreditIndex extends \Controller
 		return true;
 	}
 
-	public static function indexFile(\FilesModel $objFile)
+	public static function indexFile($objFile)
 	{
+		if ($objFile instanceof \Model\Collection)
+		{
+			return static::indexFiles($objFile);
+		}
+
+		if (!$objFile instanceof \Model)
+		{
+			return false;
+		}
+
+
 		if (!static::doIndex()) {
 			return false;
 		}
@@ -156,6 +167,19 @@ class FileCreditIndex extends \Controller
 
 
 		return true;
+	}
+
+	protected static function indexFiles(\Model\Collection $objFiles)
+	{
+		$blnCheck = true;
+
+		while($objFiles->next())
+		{
+			$return = static::indexFile($objFiles);
+			$blnCheck = !$blnCheck ?: $return;
+		}
+
+		return $blnCheck;
 	}
 	
 }

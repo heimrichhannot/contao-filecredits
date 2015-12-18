@@ -63,8 +63,8 @@ class FileCredit extends \Controller
 		}
 		
 		$objTemplate->setData($objModel->row());
-		$objTemplate->fileData   = $objFilesModel->row();
-		$objTemplate->copyright  = $objFilesModel->copyright;
+		$objTemplate->fileData = $objFilesModel->row();
+		static::addCopyrightToTemplate($objTemplate, $objFilesModel, $objModule);
 		$objTemplate->link       = $GLOBALS['TL_LANG']['MSC']['creditLinkText'];
 		$objTemplate->pagesLabel = $GLOBALS['TL_LANG']['MSC']['creditPagesLabel'];
 		$objTemplate->path       = $objFilesModel->path;
@@ -185,5 +185,23 @@ class FileCredit extends \Controller
 		}
 		
 		array_multisort($sort_col, $dir, $arr, $type);
+	}
+
+	protected static function addCopyrightToTemplate(&$objTemplate, $objFilesModel, $objModule)
+	{
+		$strCopyright = \String::decodeEntities(\String::restoreBasicEntities($objFilesModel->copyright));
+
+		if($objModule->creditsPrefix != '')
+		{
+			$strPrefix = \String::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
+			
+			if(!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== FALSE))
+			{
+				$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
+			}
+		}
+
+		$objTemplate->copyright = $strCopyright;
+
 	}
 }

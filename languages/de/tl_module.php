@@ -15,6 +15,8 @@
 $GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][0] = 'Sortierung';
 $GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][1] = 'Bitte wählen Sie die Sortierung der Bildquellen.';
 
+$GLOBALS['TL_LANG']['tl_module']['creditsPrefix'][0] = 'Bildquelle - Prefix';
+$GLOBALS['TL_LANG']['tl_module']['creditsPrefix'][1] = 'Geben Sie einen Prefix an, der vor alle Bildquellen gestellt werden soll, sofern die Zeichenkette in der Bildquelle nicht bereits angebene wurde.';
 
 
 /**

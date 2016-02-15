@@ -1,4 +1,4 @@
-<a href="<?= $this->path; ?>" title="<?= $this->link; ?>" <?= $this->attribute; ?>>
+<a href="<?= $this->path; ?>" title="<?= $this->copyright; ?>" <?= $this->attribute; ?>>
 	<?= $this->copyright; ?>
 </a>
 <span class="separator">&nbsp;–&nbsp;</span>

@@ -50,7 +50,6 @@ if (TL_MODE == 'BE') {
  * Hooks
  */
 $GLOBALS['TL_HOOKS']['executeResize'][] = array('\HeimrichHannot\FileCredit\Hooks', 'executeResizeHook');
-$GLOBALS['TL_HOOKS']['generatePage'][]  = array('\HeimrichHannot\FileCredit\Hooks', 'generatePageHook');
 
 /**
  * Models

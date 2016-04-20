@@ -202,6 +202,60 @@ class FileCredit extends \Controller
 		}
 
 		$objTemplate->copyright = $strCopyright;
+	}
 
+	/**
+	 * Cleanup filecredit and filredit_pages by current request
+	 * @return bool
+	 */
+	public static function cleanupByCurrentRequest()
+	{
+		global $objPage;
+
+		$strRequestRaw = preg_replace('/\\?.*/', '', \Environment::get('request')); // strip get parameter from url
+		$strRequest = rtrim($strRequestRaw, "/");
+		$strAlias = \Controller::generateFrontendUrl($objPage->row());
+
+		// only accept pages or auto_item pages
+		if($strRequest != $strAlias && !(\Config::get('useAutoItem') && isset($_GET['auto_item'])))
+		{
+			return false;
+		}
+
+		$objCreditPages = FileCreditPageModel::findByPageAndUrl($objPage->id, $strRequest);
+
+		if($objCreditPages === null)
+		{
+			return false;
+		}
+
+		$arrPids = array();
+
+		// delete tl_filecredit_pages by current request
+		while($objCreditPages->next())
+		{
+			$arrPids[] = $objCreditPages->pid;
+			$objCreditPages->delete();
+		}
+
+		// delete tl_filecredit if no pages exist
+		foreach($arrPids as $intPid)
+		{
+			$objCheck = FileCreditPageModel::findByPid($intPid);
+
+			if($objCheck === null)
+			{
+				$objCredit = FileCreditModel::findByPk($intPid);
+
+				if($objCredit === null)
+				{
+					continue;
+				}
+
+				$objCredit->delete();
+			}
+		}
+
+		return true;
 	}
 }

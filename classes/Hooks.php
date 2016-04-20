@@ -15,6 +15,14 @@ namespace HeimrichHannot\FileCredit;
 class Hooks extends \Controller
 {
 
+	public function generatePageHook($objPage, $objLayout, $objPageRegular)
+	{
+		if(Validator::isRebuildFileCreditRequest())
+		{
+			FileCredit::cleanupByCurrentRequest();
+		}
+	}
+
 	public function executeResizeHook($objImage)
 	{
 		if(TL_MODE == 'BE') return false; // do not return a string to not interrupt Image::executeResize

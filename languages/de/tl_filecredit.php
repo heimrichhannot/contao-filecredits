@@ -24,7 +24,6 @@ $GLOBALS['TL_LANG']['tl_filecredit']['stop'][0] = 'Anzeigen bis';
 $GLOBALS['TL_LANG']['tl_filecredit']['stop'][1] = 'Die Quellenangabe erst ab diesem Tag auf der Webseite anzeigen.';
 
 
-
 /**
  * Legends
  */
@@ -55,3 +54,17 @@ $GLOBALS['TL_LANG']['tl_filecredit']['copy']   = array('Quellenangabe dupliziere
 $GLOBALS['TL_LANG']['tl_filecredit']['toggle'] = array('Quellenangabe veröffentlichen', 'Quellenangabe ID %s veröffentlichen/unveröffentlichen');
 $GLOBALS['TL_LANG']['tl_filecredit']['delete'] = array('Quellenangabe löschen', 'Quellenangabe ID %s löschen');
 $GLOBALS['TL_LANG']['tl_filecredit']['show']   = array('Quellenangabe anzeigen', 'Quellenangabe ID %s anzeigen');
+$GLOBALS['TL_LANG']['tl_filecredit']['sync']   = array('Syncronisieren', 'Bildnachweise syncronisieren');
+
+/**
+ * Syncronize
+ */
+$GLOBALS['TL_LANG']['tl_filecredit']['syncHeadline'] = 'Bildnachweise syncronisieren';
+$GLOBALS['TL_LANG']['tl_filecredit']['limitfilecreditpages'] = array('Seitenauswahl eingrenzen', 'Bildnachweise nur für ausgewählte Seiten neu aufbauen.');
+$GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'] = 'Verfügbare Seiten';
+$GLOBALS['TL_LANG']['tl_filecredit']['syncSubmit'] = 'Bildnachweise syncronisieren';
+$GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'] = 'Keine durchsuchbaren Seiten gefunden';
+$GLOBALS['TL_LANG']['tl_filecredit']['indexNote'] = 'Bitte warten Sie, bis die Seite vollständig geladen ist, bevor Sie Ihre Arbeit fortsetzen!';
+$GLOBALS['TL_LANG']['tl_filecredit']['indexLoading'] = 'Bitte warten Sie, während die Bildnachweise neu aufgebaut werden.';
+$GLOBALS['TL_LANG']['tl_filecredit']['indexComplete'] = 'Die Bildnachweise wurden neu aufgebaut. Sie können nun fortfahren.';
+$GLOBALS['TL_LANG']['tl_filecredit']['originInfo'] = 'Das Same-Origin-Policy (SOP) Sicherheitskonzept untersagt den meisten Server die Kommunikation mit anderen Systemen über Javascript. Bitte aktivieren Sie unter "System -> Einstellungen" die Option "Add X-Frame Header" und  "Add Access-Control-Allow-Origins Header" um die Kommunikation im Multidomainbetrieb zwischen verschiedenen Instanzen über Javascript zu erlauben.';

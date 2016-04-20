@@ -26,6 +26,15 @@ class FileCreditPageModel extends \Model
 		return $intAffected;
 	}
 
+	public static function findByPageAndUrl($intPage, $strUrl, array $arrOptions = array())
+	{
+		$t = static::$strTable;
+
+		$arrColumns = array("$t.page=? AND $t.url=?");
+
+		return static::findBy($arrColumns, array($intPage, $strUrl), $arrOptions);
+	}
+
 	public static function findByPidAndUrl($intPid, $strUrl, array $arrOptions = array())
 	{
 		$t = static::$strTable;

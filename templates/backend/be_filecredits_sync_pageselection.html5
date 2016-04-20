@@ -1,0 +1,8 @@
+<div class="limitfilecreditpages">
+	<div id="ctrl_limitfilecreditpages" class="tl_checkbox_single_container">
+		<input type="hidden" name="limitfilecreditpages" value="">
+		<input type="checkbox" name="limitfilecreditpages" id="opt_limitfilecreditpages" class="tl_checkbox" value="1" onclick="FileCredits.toggleFileCreditPages(this, 'sub_limitfilecreditpages', 'limitfilecreditpages')" onfocus="Backend.getScrollOffset()">
+		<label for="opt_limitfilecreditpages"><?= $this->limitFileCreditPagesLabel[0]; ?></label>
+	</div>
+	<p class="tl_help tl_tip" title=""><?= $this->limitFileCreditPagesLabel[1]; ?></p>
+</div>

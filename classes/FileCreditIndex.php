@@ -103,17 +103,28 @@ class FileCreditIndex extends \Controller
 	{
 		global $objPage;
 
-		$strUrl = preg_replace('/\\?.*/', '', \Environment::get('request')); // strip get parameter from url
+		$strRequestRaw = preg_replace('/\\?.*/', '', \Environment::get('request')); // strip get parameter from url
+		$strRequest = rtrim($strRequestRaw, "/");
+		$strAlias = \Controller::generateFrontendUrl($objPage->row());
 
-		// set url from objPage
-		if($strUrl == '')
+		// only accept pages or auto_item pages
+		if($strRequest != $strAlias && !(\Config::get('useAutoItem') && isset($_GET['auto_item'])))
 		{
-			$strUrl = \Controller::generateFrontendUrl($objPage->row());
+			// cleanup pages that no longer exist
+			$objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequestRaw);
 
-			if($strUrl == '') return false;
+			if($objModel !== null)
+			{
+				while($objModel->next())
+				{
+					$objModel->delete();
+				}
+			}
+
+			return false;
 		}
 
-		$objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strUrl);
+		$objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequest);
 
 		// do not index page again
 		if ($objModel !== null)
@@ -126,7 +137,7 @@ class FileCreditIndex extends \Controller
 			'pid'       => $objCredit->id,
 			'tstamp'    => time(),
 			'page'      => $objPage->id,
-			'url'       => $strUrl,
+			'url'       => $strRequest,
 			'protected' => ($objPage->protected ? '1' : ''),
 			'groups'    => $objPage->groups,
 			'language'  => $objPage->language,
@@ -175,7 +186,7 @@ class FileCreditIndex extends \Controller
 
 		while($objFiles->next())
 		{
-			$return = static::indexFile($objFiles);
+			$return = static::indexFile($objFiles->current());
 			$blnCheck = !$blnCheck ?: $return;
 		}
 

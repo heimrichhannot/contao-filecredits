@@ -28,6 +28,10 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = array
 				'uuid' => 'unique',
 			),
 		),
+		'onload_callback' => array
+		(
+			array('tl_filecredit', 'checkPermission'),
+		),
 	),
 	// List
 	'list'        => array(
@@ -46,7 +50,14 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = array
 			'group_callback' => array('tl_filecredit', 'groupCredits'),
 		),
 		'global_operations' => array(
-			'all' => array(
+			'sync' => array
+			(
+				'label'           => &$GLOBALS['TL_LANG']['tl_filecredit']['sync'],
+				'href'            => 'key=sync',
+				'class'           => 'header_sync',
+				'button_callback' => array('tl_filecredit', 'syncCredits'),
+			),
+			'all'  => array(
 				'label'      => &$GLOBALS['TL_LANG']['MSC']['all'],
 				'href'       => 'act=select',
 				'class'      => 'header_edit_all',
@@ -185,6 +196,29 @@ class tl_filecredit extends \Backend
 		$this->import('BackendUser', 'User');
 	}
 
+	/**
+	 * Check permissions to edit the table
+	 */
+	public function checkPermission()
+	{
+		if ($this->User->isAdmin)
+		{
+			return;
+		}
+
+		// Check the additional operation permissions
+		switch (Input::get('key'))
+		{
+			case 'sync':
+				if (!$this->User->hasAccess('sync', 'filecredits'))
+				{
+					$this->log('Not enough permissions to sync filecredits', __METHOD__, TL_ERROR);
+					$this->redirect('contao/main.php?act=error');
+				}
+				break;
+		}
+	}
+
 
 	/**
 	 * Return the "toggle visibility" button
@@ -278,19 +312,14 @@ class tl_filecredit extends \Backend
 			return $strLabel;
 		}
 		
-		if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes'))))
-		{
+		if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes')))) {
 			$args[0] = \Image::getHtml(\Image::get($objModel->path, 64, 64, 'crop'));
-		} else
-		{
+		} else {
 			$objFile = new \File($objModel->path, true);
 
-			if($objFile->icon)
-			{
-				$args[0] =  \Image::getHtml(TL_ASSETS_URL . 'assets/contao/images/' . $objFile->icon);
-			}
-			else
-			{
+			if ($objFile->icon) {
+				$args[0] = \Image::getHtml(TL_ASSETS_URL . 'assets/contao/images/' . $objFile->icon);
+			} else {
 				$args[0] = '';
 			}
 		}
@@ -349,6 +378,22 @@ class tl_filecredit extends \Backend
 				$GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1][0],
 				'style="vertical-align:top"'
 			) . '</a>';
+	}
+
+	/**
+	 * Return the sync credit button
+	 *
+	 * @param string $href
+	 * @param string $label
+	 * @param string $title
+	 * @param string $class
+	 * @param string $attributes
+	 *
+	 * @return string
+	 */
+	public function syncCredits($href, $label, $title, $class, $attributes)
+	{
+		return $this->User->hasAccess('sync', 'filecredits') ? '<a href="'.$this->addToUrl($href).'" title="'.specialchars($title).'" class="'.$class.'"'.$attributes.'>'.$label.'</a> ' : '';
 	}
 }
 

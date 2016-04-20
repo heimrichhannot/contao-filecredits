@@ -3,7 +3,7 @@
 /**
  * Contao Open Source CMS
  *
- * Copyright (c) 2005-2015 Leo Feyer
+ * Copyright (c) 2005-2016 Leo Feyer
  *
  * @license LGPL-3.0+
  */
@@ -31,7 +31,10 @@ ClassLoader::addClasses(array
 	'HeimrichHannot\FileCredit\ModuleFileCredit'    => 'system/modules/filecredits/modules/ModuleFileCredit.php',
 
 	// Classes
+	'HeimrichHannot\FileCredit\Automator'           => 'system/modules/filecredits/classes/Automator.php',
 	'HeimrichHannot\FileCredit\Hooks'               => 'system/modules/filecredits/classes/Hooks.php',
+	'HeimrichHannot\FileCredit\Backend\FileCredit'  => 'system/modules/filecredits/classes/Backend/FileCredit.php',
+	'HeimrichHannot\FileCredit\Validator'           => 'system/modules/filecredits/classes/Validator.php',
 	'Contao\Feed'                                   => 'system/modules/filecredits/classes/Feed.php',
 	'HeimrichHannot\FileCredit\FileCreditIndex'     => 'system/modules/filecredits/classes/FileCreditIndex.php',
 	'HeimrichHannot\FileCredit\FileCredit'          => 'system/modules/filecredits/classes/FileCredit.php',
@@ -43,7 +46,10 @@ ClassLoader::addClasses(array
  */
 TemplateLoader::addFiles(array
 (
-	'mod_filecredit_empty' => 'system/modules/filecredits/templates/modules',
-	'mod_filecredit'       => 'system/modules/filecredits/templates/modules',
-	'filecredit_default'   => 'system/modules/filecredits/templates/credit',
+	'mod_filecredit_empty'                   => 'system/modules/filecredits/templates/modules',
+	'mod_filecredit'                         => 'system/modules/filecredits/templates/modules',
+	'filecredit_default'                     => 'system/modules/filecredits/templates/credit',
+	'be_filecredits_sync'                    => 'system/modules/filecredits/templates/backend',
+	'be_filecredits_sync_pageselection'      => 'system/modules/filecredits/templates/backend',
+	'be_filecredits_sync_pageselection_tree' => 'system/modules/filecredits/templates/backend',
 ));

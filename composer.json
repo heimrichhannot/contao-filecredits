@@ -1,33 +1,41 @@
 {
-    "name": "heimrichhannot/contao-filecredits",
-    "description":"Contao module that adds credit support for images.",
-    "keywords":["contao", "credits", "files", "images"],
-    "type": "contao-module",
-    "homepage":"https://github.com/heimrichhannot/contao-filecredits",
-    "license":"LGPL-3.0+",
-    "authors":[
-        {
-            "name":"Heimrich & Hannot",
-            "email":"digitales@heimrich-hannot.de",
-            "homepage":"http://www.heimrich-hannot.de",
-            "role":"Developer"
-        }
-    ],
-    "support":{
-        "issues":"https://github.com/heimrichhannot/contao-filecredits/issues"
-    },
-    "require": {
-        "contao/core": ">=3.4,<4-dev",
-	"menatwork/contao-multicolumnwizard": ">=2.10,<4"
-    },
-    "autoload": {
-        "classmap": [""]
-    },
-    "extra": {
-        "contao": {
-            "sources": {
-                "": "system/modules/filecredits"
-            }
-        }
-    }
+	"name": "heimrichhannot/contao-filecredits",
+	"description": "Contao module that adds credit support for images.",
+	"keywords": [
+		"contao",
+		"credits",
+		"files",
+		"images"
+	],
+	"type": "contao-module",
+	"homepage": "https://github.com/heimrichhannot/contao-filecredits",
+	"license": "LGPL-3.0+",
+	"authors": [
+		{
+			"name": "Heimrich & Hannot",
+			"email": "digitales@heimrich-hannot.de",
+			"homepage": "http://www.heimrich-hannot.de",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/heimrichhannot/contao-filecredits/issues"
+	},
+	"require": {
+		"contao/core": ">=3.4,<4-dev",
+		"menatwork/contao-multicolumnwizard": ">=2.10,<4",
+		"heimrichhannot/contao-haste_plus": "1.*"
+	},
+	"autoload": {
+		"classmap": [
+			""
+		]
+	},
+	"extra": {
+		"contao": {
+			"sources": {
+				"": "system/modules/filecredits"
+			}
+		}
+	}
 }

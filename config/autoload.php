@@ -26,6 +26,7 @@ ClassLoader::addClasses(array
 	// Models
 	'HeimrichHannot\FileCredit\FileCreditModel'     => 'system/modules/filecredits/models/FileCreditModel.php',
 	'HeimrichHannot\FileCredit\FileCreditPageModel' => 'system/modules/filecredits/models/FileCreditPageModel.php',
+	'HeimrichHannot\FileCredit\FilesModel'          => 'system/modules/filecredits/models/FilesModel.php',
 
 	// Modules
 	'HeimrichHannot\FileCredit\ModuleFileCredit'    => 'system/modules/filecredits/modules/ModuleFileCredit.php',

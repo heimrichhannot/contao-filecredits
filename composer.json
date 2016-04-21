@@ -24,7 +24,8 @@
 	"require": {
 		"contao/core": ">=3.4,<4-dev",
 		"menatwork/contao-multicolumnwizard": ">=2.10,<4",
-		"heimrichhannot/contao-haste_plus": "1.*"
+		"heimrichhannot/contao-haste_plus": "1.*",
+		"heimrichhannot/contao-tagsinput": "1.*"
 	},
 	"autoload": {
 		"classmap": [

@@ -12,7 +12,7 @@
 $dc = &$GLOBALS['TL_DCA']['tl_module'];
 
 $dc['palettes']['filecredit'] =
-	'{title_legend},name,headline,type;{reference_legend:hide},defineRoot;{credit_legend},creditsSortBy,creditsPrefix;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+	'{title_legend},name,headline,type;{reference_legend:hide},defineRoot;{credit_legend},creditsSortBy,creditsGroupBy,creditsPrefix;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 $arrFields = array
 (
@@ -22,6 +22,15 @@ $arrFields = array
 		'inputType'        => 'select',
 		'options_callback' => array('\HeimrichHannot\FileCredit\FileCredit', 'getSortOptions'),
 		'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy'],
+		'sql'              => "varchar(64) NOT NULL default ''",
+		'eval'             => array('tl_class' => 'w50'),
+	),
+	'creditsGroupBy' => array
+	(
+		'label'            => &$GLOBALS['TL_LANG']['tl_module']['creditsSortBy'],
+		'inputType'        => 'select',
+		'options_callback' => array('\HeimrichHannot\FileCredit\FileCredit', 'getGroupOptions'),
+		'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsGroupBy'],
 		'sql'              => "varchar(64) NOT NULL default ''",
 		'eval'             => array('tl_class' => 'w50'),
 	),

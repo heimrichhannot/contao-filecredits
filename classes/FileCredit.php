@@ -19,6 +19,8 @@ class FileCredit extends \Controller
 	const FILECREDIT_SORTBY_PAGES_ASC      = 'pagecount_asc';
 	const FILECREDIT_SORTBY_PAGES_DESC     = 'pagecount_desc';
 
+	const FILECREDIT_GROUPBY_COPYRIGHT	   = 'copyright';
+
 	public static function parseCredit(FileCreditModel $objModel, array $arrPids = array(), $objModule)
 	{
 		global $objPage;
@@ -110,6 +112,23 @@ class FileCredit extends \Controller
 		);
 
 		return $arrCredits;
+	}
+
+	public static function getGroupOptions()
+	{
+		$ref = new \ReflectionClass(__CLASS__);
+
+		$arrOptions = array();
+
+		foreach ($ref->getConstants() as $key => $value) {
+			if ($value == FILECREDIT_GROUPBY_DEFAULT) {
+				continue;
+			}
+
+			$arrOptions[] = $value;
+		}
+
+		return $arrOptions;
 	}
 
 	public static function getSortOptions()

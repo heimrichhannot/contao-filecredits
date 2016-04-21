@@ -1,0 +1,29 @@
+<li>
+	<?php if($this->addImage): ?>
+		<figure class="image_container<?= $this->floatClass ?>"<?php if ($this->margin): ?> style="<?= $this->margin ?>"<?php endif; ?>>
+
+			<a href="<?= $this->path; ?>" title="<?= $this->copyright; ?>" <?= $this->attribute; ?>>
+				<?php $this->insert('picture_default', $this->picture); ?>
+			</a>
+
+			<?php if ($this->caption): ?>
+				<figcaption class="caption"><?= $this->caption ?></figcaption>
+			<?php endif; ?>
+
+		</figure>
+	<?php else: ?>
+		<a href="<?= $this->path; ?>" title="<?= $this->copyright; ?>" <?= $this->attribute; ?>>
+			<?= $this->path; ?>
+		</a>
+	<?php endif; ?>
+	<span class="separator">&nbsp;–&nbsp;</span>
+	<span class="credit_pages">
+		<span class="credit_pages_label"><?= $this->pageLabel; ?></span>
+		<?php foreach($this->pages as $i => $page): ?>
+			<span title="<?= $page['url']; ?>"
+				  class="credit_page credit_page_<?= ++$i; ?><?= ($i == 1 ? ' first' : ''); ?><?= $i == count($this->pages) ? ' last' : ''; ?><?= ($i%2==0  ? ' even' : ' odd'); ?>">
+				<a href="<?= $page['url']; ?>"><?= $i; ?></a>
+			</span>
+		<?php endforeach; ?>
+	</span>
+</li>

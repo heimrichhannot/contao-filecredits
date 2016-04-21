@@ -19,13 +19,15 @@ class FileCredit extends \Controller
 	const FILECREDIT_SORTBY_PAGES_ASC      = 'pagecount_asc';
 	const FILECREDIT_SORTBY_PAGES_DESC     = 'pagecount_desc';
 
-	const FILECREDIT_GROUPBY_COPYRIGHT	   = 'copyright';
+	const FILECREDIT_GROUPBY_COPYRIGHT = 'copyright';
 
 	public static function parseCredit(FileCreditModel $objModel, array $arrPids = array(), $objModule)
 	{
 		global $objPage;
 
-		$objTemplate = new \FrontendTemplate('filecredit_default');
+		if($objModule->creditsGroupBy != '')
+
+		$objTemplate = new \FrontendTemplate(!$objModule->creditsGroupBy ? 'filecredit_default' : 'filecredit_grouped');
 
 		// skip if no files model exists
 		if (($objFilesModel = $objModel->getRelated('uuid')) === null) {
@@ -85,7 +87,29 @@ class FileCredit extends \Controller
 			($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $objModule->id . '" data-lightbox="' : ' rel="')
 							  . $strLightboxId . '"' : '');
 
-		return array('order' => static::getSortValue($objModule->creditsSortBy, $objTemplate), 'output' => $objTemplate->parse());
+		$objTemplate->addImage = false;
+
+		// Add an image
+		if (!is_file(TL_ROOT . '/' . $objModel->path))
+		{
+			$arrData = array('singleSRC' => $objFilesModel->path, 'doNotIndex' => true);
+
+			$size = deserialize($objModule->imgSize);
+
+			if ($size[0] > 0 || $size[1] > 0 || is_numeric($size[2]))
+			{
+				$arrData['size'] = $objModule->imgSize;
+			}
+
+			\Controller::addImageToTemplate($objTemplate, $arrData);
+		}
+
+		return array(
+			'pages'	 => $arrPages,
+			'order'  => static::getSortValue($objModule->creditsSortBy, $objTemplate),
+		 	'group'  => static::getGroupValue($objModule->creditsGroupBy, $objTemplate),
+		 	'output' => $objTemplate->parse(),
+		);
 	}
 
 
@@ -101,8 +125,10 @@ class FileCredit extends \Controller
 
 			$arrCredits[] = $strReturn;
 		}
-
+		
 		$arrCredits = static::sortCredits($arrCredits, $objModule->creditsSortBy);
+
+		$arrCredits = static::groupCredits($arrCredits, $objModule->creditsGroupBy);
 
 		$arrCredits = array_map(
 			function ($value) use (&$arrCredit) {
@@ -121,7 +147,7 @@ class FileCredit extends \Controller
 		$arrOptions = array();
 
 		foreach ($ref->getConstants() as $key => $value) {
-			if ($value == FILECREDIT_GROUPBY_DEFAULT) {
+			if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_GROUPBY')) {
 				continue;
 			}
 
@@ -138,7 +164,8 @@ class FileCredit extends \Controller
 		$arrOptions = array();
 
 		foreach ($ref->getConstants() as $key => $value) {
-			if ($value == FILECREDIT_SORTBY_DEFAULT) {
+			
+			if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_SORTBY')) {
 				continue;
 			}
 
@@ -164,6 +191,17 @@ class FileCredit extends \Controller
 		}
 	}
 
+	public static function getGroupValue($mode, $objTemplate)
+	{
+		$ref = new \ReflectionClass(__CLASS__);
+
+		switch ($mode) {
+			case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
+				return $objTemplate->copyright;
+			default:
+				return null;
+		}
+	}
 
 	public static function sortCredits(array $arrCredits, $sort)
 	{
@@ -196,6 +234,42 @@ class FileCredit extends \Controller
 	}
 
 
+	public static function groupCredits(array $arrCredits, $mode)
+	{
+		if (!$mode) {
+			return $arrCredits;
+		}
+
+		$ref = new \ReflectionClass(__CLASS__);
+		$arrGroups = array();
+		$arrReturn = array();
+
+		switch ($mode) {
+			case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
+
+
+				$objTemplate = new \FrontendTemplate('filecreditgroup_' . $mode);
+
+				foreach($arrCredits as $arrCredit)
+				{
+					$arrGroups[$arrCredit['group']][] = $arrCredit['output'];
+				}
+
+				foreach($arrGroups as $title => $items)
+				{
+					$objTemplate->cssID = 'filecredit_' . substr(md5($title), 0, 8);
+					$objTemplate->title = $title;
+					$objTemplate->items = $items;
+					$arrReturn[]['output'] = $objTemplate->parse();
+				}
+
+			break;
+		}
+		
+
+		return $arrReturn;
+	}
+
 	private static function array_sort_by_column(&$arr, $col, $dir = SORT_ASC, $type = SORT_REGULAR)
 	{
 		$sort_col = array();
@@ -210,16 +284,29 @@ class FileCredit extends \Controller
 	{
 		$strCopyright = \String::decodeEntities(\String::restoreBasicEntities($objFilesModel->copyright));
 
-		if($objModule->creditsPrefix != '')
-		{
+		if ($objModule->creditsPrefix != '') {
 			$strPrefix = \String::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
 			
-			if(!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== FALSE))
-			{
+			if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
 				$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
 			}
 		}
 
 		$objTemplate->copyright = $strCopyright;
+	}
+
+	public static function indexStop()
+	{
+		$GLOBALS['FILECREDIT_INDEX_STOP'] = true;
+	}
+
+	public static function indexContinue()
+	{
+		unset($GLOBALS['FILECREDIT_INDEX_STOP']);
+	}
+
+	public static function isIndexSuspended()
+	{
+		return $GLOBALS['FILECREDIT_INDEX_STOP'];
 	}
 }

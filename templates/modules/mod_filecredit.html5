@@ -5,9 +5,9 @@
 <?php if (empty($this->credits)): ?>
 	<p class="empty"><?php echo $this->empty; ?></p>
 <?php else: ?>
-	<ul>
+	<ul class="<?= $this->cssClass; ?>">
 		<?php foreach($this->credits as $i => $credit): ?>
-			<li class="<?php echo ($i==0 ? 'first ' : '') . ($i+1 == count($this->credits) ? 'last ' : '') ;?>item"><?php echo $credit; ?></li>
+			<li class="<?= ($i==0 ? 'first ' : '') . ($i+1 == count($this->credits) ? 'last ' : '') ;?>item<?=$this->group ? ' group' : '' ?>"><?= $credit; ?></li>
 		<?php endforeach;?>
 	</ul>
 <?php endif; ?>

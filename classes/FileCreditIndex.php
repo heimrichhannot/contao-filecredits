@@ -108,7 +108,7 @@ class FileCreditIndex extends \Controller
 		$strAlias = \Controller::generateFrontendUrl($objPage->row());
 
 		// only accept pages or auto_item pages
-		if($strRequest != $strAlias && !(\Config::get('useAutoItem') && isset($_GET['auto_item'])))
+		if(!Validator::isRequestAlias($strRequest, $strAlias))
 		{
 			// cleanup pages that no longer exist
 			$objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequestRaw);
@@ -154,6 +154,7 @@ class FileCreditIndex extends \Controller
 
 		return true;
 	}
+
 
 	public static function indexFile($objFile)
 	{

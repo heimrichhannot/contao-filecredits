@@ -15,6 +15,9 @@
 $GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][0] = 'Sortierung';
 $GLOBALS['TL_LANG']['tl_module']['creditsSortBy'][1] = 'Bitte wählen Sie die Sortierung der Bildquellen.';
 
+$GLOBALS['TL_LANG']['tl_module']['creditsGroupBy'][0] = 'Gruppierung';
+$GLOBALS['TL_LANG']['tl_module']['creditsGroupBy'][1] = 'Bitte wählen Sie die Gruppierung der Bildquellen.';
+
 $GLOBALS['TL_LANG']['tl_module']['creditsPrefix'][0] = 'Bildquelle - Prefix';
 $GLOBALS['TL_LANG']['tl_module']['creditsPrefix'][1] = 'Geben Sie einen Prefix an, der vor alle Bildquellen gestellt werden soll, sofern die Zeichenkette in der Bildquelle nicht bereits angebene wurde.';
 
@@ -32,3 +35,5 @@ $GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['copyright_asc'] = 'Qu
 $GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['copyright_desc'] = 'Quellenangabe absteigend';
 $GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['pagecount_asc'] = 'Seitenanzahl aufsteigend';
 $GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy']['pagecount_desc'] = 'Seitenanzahl absteigend';
+
+$GLOBALS['TL_LANG']['tl_module']['refs']['creditsGroupBy']['copyright'] = 'Quellenangabe';

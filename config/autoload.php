@@ -49,6 +49,8 @@ TemplateLoader::addFiles(array
 (
 	'mod_filecredit_empty'                   => 'system/modules/filecredits/templates/modules',
 	'mod_filecredit'                         => 'system/modules/filecredits/templates/modules',
+	'filecredit_grouped'                     => 'system/modules/filecredits/templates/credit',
+	'filecreditgroup_copyright'              => 'system/modules/filecredits/templates/credit',
 	'filecredit_default'                     => 'system/modules/filecredits/templates/credit',
 	'be_filecredits_sync'                    => 'system/modules/filecredits/templates/backend',
 	'be_filecredits_sync_pageselection'      => 'system/modules/filecredits/templates/backend',

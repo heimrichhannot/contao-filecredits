@@ -1,0 +1,4 @@
+<a class="collapsed group-title" role="button" data-toggle="collapse" href="#<?= $this->cssID; ?>"><?= $this->title; ?></a>
+<ul class="group-items panel-collapse list-inline collapse" id="<?= $this->cssID; ?>">
+	<?= implode('', $this->items); ?>
+</ul>

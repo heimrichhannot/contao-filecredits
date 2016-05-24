@@ -25,8 +25,6 @@ class FileCredit extends \Controller
 	{
 		global $objPage;
 
-		if($objModule->creditsGroupBy != '')
-
 		$objTemplate = new \FrontendTemplate(!$objModule->creditsGroupBy ? 'filecredit_default' : 'filecredit_grouped');
 
 		// skip if no files model exists

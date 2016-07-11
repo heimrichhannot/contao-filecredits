@@ -23,7 +23,7 @@ class FileCreditModel extends \Model
 		// Convert UUIDs to binary
 		if (\Validator::isStringUuid($strUuid))
 		{
-			$strUuid = \String::uuidToBin($strUuid);
+			$strUuid = \StringUtil::uuidToBin($strUuid);
 		}
 
 		$arrColumns = array("$t.uuid=UNHEX(?)");
@@ -38,7 +38,7 @@ class FileCreditModel extends \Model
 		// Convert UUIDs to binary
 		if (\Validator::isStringUuid($strUuid))
 		{
-			$strUuid = \String::uuidToBin($strUuid);
+			$strUuid = \StringUtil::uuidToBin($strUuid);
 		}
 
 		$arrColumns = array("$t.uuid=UNHEX(?) AND $t.pid=? AND $t.url=?");

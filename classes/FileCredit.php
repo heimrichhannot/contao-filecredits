@@ -280,10 +280,10 @@ class FileCredit extends \Controller
 
 	protected static function addCopyrightToTemplate(&$objTemplate, $objFilesModel, $objModule)
 	{
-		$strCopyright = \String::decodeEntities(\String::restoreBasicEntities($objFilesModel->copyright));
+		$strCopyright = \StringUtil::decodeEntities(\String::restoreBasicEntities($objFilesModel->copyright));
 
 		if ($objModule->creditsPrefix != '') {
-			$strPrefix = \String::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
+			$strPrefix = \StringUtil::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
 			
 			if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
 				$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));

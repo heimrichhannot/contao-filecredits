@@ -280,17 +280,25 @@ class FileCredit extends \Controller
 
 	protected static function addCopyrightToTemplate(&$objTemplate, $objFilesModel, $objModule)
 	{
-		$strCopyright = \StringUtil::decodeEntities(\String::restoreBasicEntities($objFilesModel->copyright));
+		$arrCopyright = deserialize($objFilesModel->copyright, true);
+		$arrList = array();
 
-		if ($objModule->creditsPrefix != '') {
-			$strPrefix = \StringUtil::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
-			
-			if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
-				$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
+		foreach ($arrCopyright as $strCopyright)
+		{
+			$strCopyright = \StringUtil::decodeEntities(\String::restoreBasicEntities($strCopyright));
+
+			if ($objModule->creditsPrefix != '') {
+				$strPrefix = \StringUtil::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
+
+				if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
+					$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
+				}
 			}
+
+			$arrList[] = $strCopyright;
 		}
 
-		$objTemplate->copyright = $strCopyright;
+		$objTemplate->copyright = implode(', ', $arrList);
 	}
 
 	public static function indexStop()

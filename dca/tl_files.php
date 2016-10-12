@@ -19,9 +19,9 @@ $dc['fields']['copyright'] = array
 	'label'                   	=> &$GLOBALS['TL_LANG']['tl_files']['copyright'],
 	'inputType'               	=> 'tagsinput',
 	'options_callback'			=> array('tl_files_filecredits', 'getCreditOptions'),
-	'eval'						=> array('maxlength'=>255, 'decodeEntities'=>true, 'tl_class'=>'long clr', 'helpwizard'=>true, 'freeInput' => true),
+	'eval'						=> array('maxlength'=>255, 'decodeEntities'=>true, 'tl_class'=>'long clr', 'helpwizard'=>true, 'freeInput' => true, 'multiple' => true),
 	'reference'					=> &$GLOBALS['TL_LANG']['tl_files'],
-	'sql'                     	=> "varchar(255) NOT NULL default ''"
+	'sql'                     	=> "blob NULL"
 );
 
 class tl_files_filecredits extends Backend

@@ -312,4 +312,11 @@ class FileCredit extends \Backend implements \executable
 
         return $arrPages;
     }
+
+    public static function parseCopyright($varValue)
+    {
+        $varValue = deserialize($varValue);
+
+        return is_array($varValue) ? implode(', ', $varValue) : $varValue;
+    }
 }

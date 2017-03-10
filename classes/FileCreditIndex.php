@@ -101,6 +101,8 @@ class FileCreditIndex extends \Controller
 
 	protected static function addCurrentPage(FileCreditModel $objCredit)
 	{
+		if(!$objCredit->id) return false;
+	
 		global $objPage;
 
 		$strRequestRaw = preg_replace('/\\?.*/', '', \Environment::get('request')); // strip get parameter from url

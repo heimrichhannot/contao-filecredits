@@ -285,10 +285,10 @@ class FileCredit extends \Controller
 
 		foreach ($arrCopyright as $strCopyright)
 		{
-			$strCopyright = \StringUtil::decodeEntities(\String::restoreBasicEntities($strCopyright));
+			$strCopyright = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($strCopyright));
 
 			if ($objModule->creditsPrefix != '') {
-				$strPrefix = \StringUtil::decodeEntities(\String::restoreBasicEntities($objModule->creditsPrefix));
+				$strPrefix = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($objModule->creditsPrefix));
 
 				if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
 					$strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));

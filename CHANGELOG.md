@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.14] - 2017-05-09
+
+### Fixed
+- php7 support
+
 ## [2.1.13] - 2017-04-12
 - created new tag
 

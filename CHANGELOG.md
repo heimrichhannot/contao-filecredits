@@ -1,5 +1,10 @@
-# Change Log
+# Changelog
 All notable changes to this project will be documented in this file.
+
+## [2.1.15] - 2017-05-15
+
+### Fixed
+- copyright connection
 
 ## [2.1.14] - 2017-05-09
 

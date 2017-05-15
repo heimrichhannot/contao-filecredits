@@ -176,7 +176,7 @@ class Feed
 					
 					if($objResult->numRows > 0)
 					{
-						$xml .= '<source url="#">' . specialchars($objResult->copyright) . '</source>';
+						$xml .= '<source url="#">' . specialchars(implode(', ', deserialize($objResult->copyright, true))) . '</source>';
 					}
 				}
 			}
@@ -232,7 +232,7 @@ class Feed
 
 					if($objResult->numRows > 0)
 					{
-						$xml .= '<source url="#">' . $objResult->copyright . '</source>';
+                        $xml .= '<source url="#">' . specialchars(implode(', ', deserialize($objResult->copyright, true))) . '</source>';
 					}
 				}
 			}

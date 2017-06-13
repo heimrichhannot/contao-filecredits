@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.1.16] - 2017-05-15
+
+### Fixed
+- `tl_files.copyright` tagsinput options for multiple credits (field was changed from varchar to blob recently)
+
 ## [2.1.15] - 2017-05-15
 
 ### Fixed

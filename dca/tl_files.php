@@ -40,7 +40,7 @@ class tl_files_filecredits extends Backend
 
 		while($objFileCredits->next())
 		{
-			$arrOptions[$objFileCredits->copyright] = $objFileCredits->copyright;
+			$arrOptions = array_merge($arrOptions, deserialize($objFileCredits->copyright, true));				
 		}
 
 		return $arrOptions;

@@ -48,19 +48,19 @@ $GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1] = 'Quellenangabe %s bea
 /**
  * Buttons
  */
-$GLOBALS['TL_LANG']['tl_filecredit']['new']    = array('Neue Quellenangabe', 'Erstellt eine neue Quellenangabe.');
-$GLOBALS['TL_LANG']['tl_filecredit']['edit']   = array('Quellenangabe bearbeiten', 'Quellenangabe ID %s bearbeiten');
-$GLOBALS['TL_LANG']['tl_filecredit']['copy']   = array('Quellenangabe duplizieren', 'Quellenangabe ID %s duplizieren');
-$GLOBALS['TL_LANG']['tl_filecredit']['toggle'] = array('Quellenangabe veröffentlichen', 'Quellenangabe ID %s veröffentlichen/unveröffentlichen');
-$GLOBALS['TL_LANG']['tl_filecredit']['delete'] = array('Quellenangabe löschen', 'Quellenangabe ID %s löschen');
-$GLOBALS['TL_LANG']['tl_filecredit']['show']   = array('Quellenangabe anzeigen', 'Quellenangabe ID %s anzeigen');
-$GLOBALS['TL_LANG']['tl_filecredit']['sync']   = array('Syncronisieren', 'Bildnachweise syncronisieren');
+$GLOBALS['TL_LANG']['tl_filecredit']['new']    = ['Neue Quellenangabe', 'Erstellt eine neue Quellenangabe.'];
+$GLOBALS['TL_LANG']['tl_filecredit']['edit']   = ['Quellenangabe bearbeiten', 'Quellenangabe ID %s bearbeiten'];
+$GLOBALS['TL_LANG']['tl_filecredit']['copy']   = ['Quellenangabe duplizieren', 'Quellenangabe ID %s duplizieren'];
+$GLOBALS['TL_LANG']['tl_filecredit']['toggle'] = ['Quellenangabe veröffentlichen', 'Quellenangabe ID %s veröffentlichen/unveröffentlichen'];
+$GLOBALS['TL_LANG']['tl_filecredit']['delete'] = ['Quellenangabe löschen', 'Quellenangabe ID %s löschen'];
+$GLOBALS['TL_LANG']['tl_filecredit']['show']   = ['Quellenangabe anzeigen', 'Quellenangabe ID %s anzeigen'];
+$GLOBALS['TL_LANG']['tl_filecredit']['sync']   = ['Syncronisieren', 'Bildnachweise syncronisieren'];
 
 /**
  * Syncronize
  */
 $GLOBALS['TL_LANG']['tl_filecredit']['syncHeadline'] = 'Bildnachweise syncronisieren';
-$GLOBALS['TL_LANG']['tl_filecredit']['limitfilecreditpages'] = array('Seitenauswahl eingrenzen', 'Bildnachweise nur für ausgewählte Seiten neu aufbauen.');
+$GLOBALS['TL_LANG']['tl_filecredit']['limitfilecreditpages'] = ['Seitenauswahl eingrenzen', 'Bildnachweise nur für ausgewählte Seiten neu aufbauen.'];
 $GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'] = 'Verfügbare Seiten';
 $GLOBALS['TL_LANG']['tl_filecredit']['syncSubmit'] = 'Bildnachweise syncronisieren';
 $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'] = 'Keine durchsuchbaren Seiten gefunden';

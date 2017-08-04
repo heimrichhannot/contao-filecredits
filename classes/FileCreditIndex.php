@@ -52,15 +52,13 @@ class FileCreditIndex extends \Controller
 			return false;
 		}
 
-		$arrSet = array
-		(
+		$arrSet = [
 			'tstamp'    => time(),
 			'uuid'      => $objFile->uuid,
 			'checksum'  => $checksum,
 			'published' => 1,
 			'start'     => '',
-			'stop'      => '',
-		);
+			'stop'      => '',];
 
 		if ($objModel !== null)
 		{
@@ -134,8 +132,7 @@ class FileCreditIndex extends \Controller
 			return false;
 		}
 
-		$arrSet = array
-		(
+		$arrSet = [
 			'pid'       => $objCredit->id,
 			'tstamp'    => time(),
 			'page'      => $objPage->id,
@@ -145,8 +142,7 @@ class FileCreditIndex extends \Controller
 			'language'  => $objPage->language,
 			'published' => 1,
 			'start'     => '',
-			'stop'      => '',
-		);
+			'stop'      => '',];
 
 
 		// create: add new page for the credit

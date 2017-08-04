@@ -13,11 +13,11 @@ namespace HeimrichHannot\FileCredit;
 
 class FilesModel extends \FilesModel
 {
-	public static function findWithCopyright(array $arrOptions=array())
+	public static function findWithCopyright(array $arrOptions= [])
 	{
 		$t = static::$strTable;
 
-		$arrColumns = array("$t.copyright <> ''");
+		$arrColumns = ["$t.copyright <> ''"];
 
 		return static::findBy($arrColumns, null, $arrOptions);
 	}

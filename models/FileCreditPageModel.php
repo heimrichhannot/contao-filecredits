@@ -26,37 +26,37 @@ class FileCreditPageModel extends \Model
 		return $intAffected;
 	}
 
-	public static function findByPageAndUrl($intPage, $strUrl, array $arrOptions = array())
+	public static function findByPageAndUrl($intPage, $strUrl, array $arrOptions = [])
 	{
 		$t = static::$strTable;
 
-		$arrColumns = array("$t.page=? AND $t.url=?");
+		$arrColumns = ["$t.page=? AND $t.url=?"];
 
-		return static::findBy($arrColumns, array($intPage, $strUrl), $arrOptions);
+		return static::findBy($arrColumns, [$intPage, $strUrl], $arrOptions);
 	}
 
-	public static function findByPidAndUrl($intPid, $strUrl, array $arrOptions = array())
+	public static function findByPidAndUrl($intPid, $strUrl, array $arrOptions = [])
 	{
 		$t = static::$strTable;
 
-		$arrColumns = array("$t.pid=? AND $t.url=?");
+		$arrColumns = ["$t.pid=? AND $t.url=?"];
 
-		return static::findBy($arrColumns, array($intPid, $strUrl), $arrOptions);
+		return static::findBy($arrColumns, [$intPid, $strUrl], $arrOptions);
 	}
 
-	public static function findByPidAndPageAndUrl($intPid, $intPage, $strUrl, array $arrOptions = array())
+	public static function findByPidAndPageAndUrl($intPid, $intPage, $strUrl, array $arrOptions = [])
 	{
 		$t = static::$strTable;
 
-		$arrColumns = array("$t.pid=? AND $t.page=? AND $t.url=?");
+		$arrColumns = ["$t.pid=? AND $t.page=? AND $t.url=?"];
 
-		return static::findBy($arrColumns, array($intPid, $intPage, $strUrl), $arrOptions);
+		return static::findBy($arrColumns, [$intPid, $intPage, $strUrl], $arrOptions);
 	}
 
-	public static function findPublishedByPids(array $arrPids, array $arrOptions = array())
+	public static function findPublishedByPids(array $arrPids, array $arrOptions = [])
 	{
 		$t = static::$strTable;
-		$arrColumns = array("$t.pid IN(" . implode(',', array_map('intval', $arrPids)) . ")");
+		$arrColumns = ["$t.pid IN(" . implode(',', array_map('intval', $arrPids)) . ")"];
 
 		if (!BE_USER_LOGGED_IN)
 		{
@@ -64,6 +64,6 @@ class FileCreditPageModel extends \Model
 			$arrColumns[] = "($t.start='' OR $t.start<='$time') AND ($t.stop='' OR $t.stop>'" . ($time + 60) . "') AND $t.published='1'";
 		}
 
-		return static::findBy($arrColumns, array(), $arrOptions);
+		return static::findBy($arrColumns, [], $arrOptions);
 	}
 }

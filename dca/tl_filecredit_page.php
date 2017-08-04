@@ -12,142 +12,142 @@
 /**
  * Table tl_filecredit_page
  */
-$GLOBALS['TL_DCA']['tl_filecredit_page'] = array(
+$GLOBALS['TL_DCA']['tl_filecredit_page'] = [
 
     // Config
-    'config'      => array(
+    'config'      => [
         'dataContainer' => 'Table',
         'ptable'        => 'tl_filecredit',
-        'sql'           => array(
-            'keys' => array(
+        'sql'           => [
+            'keys' => [
                 'id'   => 'primary',
                 'pid'  => 'index',
                 'page' => 'index',
                 'url'  => 'index',
-            ),
-        ),
-    ),
+            ],
+        ],
+    ],
     // List
-    'list'        => array(
-        'sorting'           => array(
+    'list'        => [
+        'sorting'           => [
             'mode'                  => 4,
-            'fields'                => array('page ASC'),
-            'headerFields'          => array('uuid', 'tstamp'),
+            'fields'                => ['page ASC'],
+            'headerFields'          => ['uuid', 'tstamp'],
             'panelLayout'           => 'filter;sort,search,limit',
-            'child_record_callback' => array('tl_filecredit_page', 'listCreditPages'),
+            'child_record_callback' => ['tl_filecredit_page', 'listCreditPages'],
             'child_record_class'    => 'no_padding',
-            'header_callback'       => array('tl_filecredit_page', 'parseHeader'),
-        ),
-        'label'             => array(
-            'fields' => array('url'),
+            'header_callback'       => ['tl_filecredit_page', 'parseHeader'],
+        ],
+        'label'             => [
+            'fields' => ['url'],
             'format' => '%s',
-        ),
-        'global_operations' => array(
-            'all' => array(
+        ],
+        'global_operations' => [
+            'all' => [
                 'label'      => &$GLOBALS['TL_LANG']['MSC']['all'],
                 'href'       => 'act=select',
                 'class'      => 'header_edit_all',
                 'attributes' => 'onclick="Backend.getScrollOffset();" accesskey="e"',
-            ),
-        ),
-        'operations'        => array(
-            'edit'   => array(
+            ],
+        ],
+        'operations'        => [
+            'edit'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_filecredit_page']['edit'],
                 'href'  => 'act=edit',
                 'icon'  => 'edit.gif',
-            ),
-            'copy'   => array(
+            ],
+            'copy'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_filecredit_page']['copy'],
                 'href'  => 'act=copy',
                 'icon'  => 'copy.gif',
-            ),
-            'delete' => array(
+            ],
+            'delete' => [
                 'label'      => &$GLOBALS['TL_LANG']['tl_filecredit_page']['delete'],
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
                 'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
                                 . '\'))return false;Backend.getScrollOffset()"',
-            ),
-            'toggle' => array(
+            ],
+            'toggle' => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_filecredit_page']['toggle'],
                 'icon'            => 'visible.gif',
                 'attributes'      => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-                'button_callback' => array('tl_filecredit_page', 'toggleIcon'),
-            ),
-            'show'   => array(
+                'button_callback' => ['tl_filecredit_page', 'toggleIcon'],
+            ],
+            'show'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_slick_config']['show'],
                 'href'  => 'act=show',
                 'icon'  => 'show.gif',
-            ),
-        ),
-    ),
+            ],
+        ],
+    ],
     // Palettes
-    'palettes'    => array(
-        '__selector__' => array('published'),
+    'palettes'    => [
+        '__selector__' => ['published'],
         'default'      => '{page_legend},page,url;{publish_legend},published',
-    ),
+    ],
     // Subpalettes
-    'subpalettes' => array(
+    'subpalettes' => [
         'published' => 'start,stop',
-    ),
+    ],
     // Fields
-    'fields'      => array(
-        'id'        => array(
+    'fields'      => [
+        'id'        => [
             'sql' => "int(10) unsigned NOT NULL auto_increment",
-        ),
-        'pid'       => array(
+        ],
+        'pid'       => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'tstamp'    => array(
+        ],
+        'tstamp'    => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'page'      => array(
+        ],
+        'page'      => [
             'label'      => &$GLOBALS['TL_LANG']['tl_filecredit_page']['page'],
             'inputType'  => 'pageTree',
             'sql'        => "int(10) unsigned NOT NULL default '0'",
             'foreignKey' => 'tl_page.title',
-            'relation'   => array('type' => 'hasMany', 'load' => 'lazy'),
-            'eval'       => array('mandatory' => true),
-        ),
-        'url'       => array(
+            'relation'   => ['type' => 'hasMany', 'load' => 'lazy'],
+            'eval'       => ['mandatory' => true],
+        ],
+        'url'       => [
             'label'     => &$GLOBALS['TL_LANG']['tl_filecredit_page']['url'],
             'inputType' => 'text',
             'sql'       => "varchar(255) NOT NULL default ''",
-        ),
-        'protected' => array(
+        ],
+        'protected' => [
             'sql' => "char(1) NOT NULL default ''",
-        ),
-        'groups'    => array(
+        ],
+        'groups'    => [
             'sql' => "blob NULL",
-        ),
-        'language'  => array(
+        ],
+        'language'  => [
             'sql' => "varchar(5) NOT NULL default ''",
-        ),
-        'published' => array(
+        ],
+        'published' => [
             'label'     => &$GLOBALS['TL_LANG']['tl_filecredit_page']['published'],
             'exclude'   => true,
             'filter'    => true,
             'flag'      => 1,
             'inputType' => 'checkbox',
-            'eval'      => array('submitOnChange' => true, 'doNotCopy' => true),
+            'eval'      => ['submitOnChange' => true, 'doNotCopy' => true],
             'sql'       => "char(1) NOT NULL default ''",
-        ),
-        'start'     => array(
+        ],
+        'start'     => [
             'label'     => &$GLOBALS['TL_LANG']['tl_filecredit_page']['start'],
             'exclude'   => true,
             'inputType' => 'text',
-            'eval'      => array('rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'),
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''",
-        ),
-        'stop'      => array(
+        ],
+        'stop'      => [
             'label'     => &$GLOBALS['TL_LANG']['tl_filecredit_page']['stop'],
             'exclude'   => true,
             'inputType' => 'text',
-            'eval'      => array('rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'),
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''",
-        ),
-    ),
-);
+        ],
+    ],
+];
 
 
 class tl_filecredit_page extends \Backend

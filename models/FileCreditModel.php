@@ -12,50 +12,52 @@
 namespace HeimrichHannot\FileCredit;
 
 
+use HeimrichHannot\Haste\Util\Files;
+
 class FileCreditModel extends \Model
 {
-	protected static $strTable = 'tl_filecredit';
+    protected static $strTable = 'tl_filecredit';
 
-	public static function findByUuid($strUuid, array $arrOptions = array())
-	{
-		$t = static::$strTable;
+    public static function findByUuid($strUuid, array $arrOptions = [])
+    {
+        $t = static::$strTable;
 
-		// Convert UUIDs to binary
-		if (\Validator::isStringUuid($strUuid))
-		{
-			$strUuid = \StringUtil::uuidToBin($strUuid);
-		}
+        // Convert UUIDs to binary
+        if (\Validator::isStringUuid($strUuid))
+        {
+            $strUuid = \StringUtil::uuidToBin($strUuid);
+        }
 
-		$arrColumns = array("$t.uuid=UNHEX(?)");
+        $arrColumns = ["$t.uuid=UNHEX(?)"];
 
-		return static::findOneBy($arrColumns, array(bin2hex($strUuid)), $arrOptions);
-	}
+        return static::findOneBy($arrColumns, [bin2hex($strUuid)], $arrOptions);
+    }
 
-	public static function findByUuidAndPidAndUrl($strUuid, $intPid, $strUrl, array $arrOptions = array())
-	{
-		$t = static::$strTable;
+    public static function findByUuidAndPidAndUrl($strUuid, $intPid, $strUrl, array $arrOptions = [])
+    {
+        $t = static::$strTable;
 
-		// Convert UUIDs to binary
-		if (\Validator::isStringUuid($strUuid))
-		{
-			$strUuid = \StringUtil::uuidToBin($strUuid);
-		}
+        // Convert UUIDs to binary
+        if (\Validator::isStringUuid($strUuid))
+        {
+            $strUuid = \StringUtil::uuidToBin($strUuid);
+        }
 
-		$arrColumns = array("$t.uuid=UNHEX(?) AND $t.pid=? AND $t.url=?");
+        $arrColumns = ["$t.uuid=UNHEX(?) AND $t.pid=? AND $t.url=?"];
 
-		return static::findBy($arrColumns, array(bin2hex($strUuid), $intPid, $strUrl), $arrOptions);
-	}
+        return static::findBy($arrColumns, [bin2hex($strUuid), $intPid, $strUrl], $arrOptions);
+    }
 
-	public static function findByPublished(array $arrOptions=array())
-	{
-		$t = static::$strTable;
+    public static function findByPublished(array $arrOptions = [])
+    {
+        $t = static::$strTable;
 
-		if (!BE_USER_LOGGED_IN)
-		{
-			$time = \Date::floorToMinute();
-			$arrColumns[] = "($t.start='' OR $t.start<='$time') AND ($t.stop='' OR $t.stop>'" . ($time + 60) . "') AND $t.published='1'";
-		}
+        if (!BE_USER_LOGGED_IN)
+        {
+            $time         = \Date::floorToMinute();
+            $arrColumns[] = "($t.start='' OR $t.start<='$time') AND ($t.stop='' OR $t.stop>'" . ($time + 60) . "') AND $t.published='1'";
+        }
 
-		return static::findBy($arrColumns, array(), $arrOptions);
-	}
+        return static::findBy($arrColumns, [], $arrOptions);
+    }
 }

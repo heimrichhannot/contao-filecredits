@@ -14,35 +14,27 @@ $dc = &$GLOBALS['TL_DCA']['tl_module'];
 $dc['palettes']['filecredit'] =
 	'{title_legend},name,headline,type;{reference_legend:hide},defineRoot;{credit_legend},creditsSortBy,creditsGroupBy,creditsPrefix;{image_legend:hide},imgSize;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
-$arrFields = array
-(
-	'creditsSortBy' => array
-	(
-		'label'            => &$GLOBALS['TL_LANG']['tl_module']['creditsSortBy'],
-		'inputType'        => 'select',
-		'options_callback' => array('\HeimrichHannot\FileCredit\FileCredit', 'getSortOptions'),
-		'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy'],
-		'sql'              => "varchar(64) NOT NULL default ''",
-		'eval'             => array('tl_class' => 'w50'),
-	),
-	'creditsGroupBy' => array
-	(
-		'label'            => &$GLOBALS['TL_LANG']['tl_module']['creditsGroupBy'],
-		'inputType'        => 'select',
-		'options_callback' => array('\HeimrichHannot\FileCredit\FileCredit', 'getGroupOptions'),
-		'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsGroupBy'],
-		'sql'              => "varchar(64) NOT NULL default ''",
-		'eval'             => array('tl_class' => 'w50', 'includeBlankOption' => true),
-	),
-	'creditsPrefix' => array
-	(
-		'label'     => &$GLOBALS['TL_LANG']['tl_module']['creditsPrefix'],
-		'inputType' => 'text',
-		'default'   => '&copy;&nbsp;',
-		'sql'       => "varchar(255) NOT NULL default ''",
-		'eval'      => array('tl_class' => 'w50', 'decodeEntities' => true),
-	),
-);
+$arrFields = [
+    'creditsSortBy' => [
+        'label'            => &$GLOBALS['TL_LANG']['tl_module']['creditsSortBy'],
+        'inputType'        => 'select',
+        'options_callback' => ['\HeimrichHannot\FileCredit\FileCredit', 'getSortOptions'],
+        'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsSortBy'],
+        'sql'              => "varchar(64) NOT NULL default ''",
+        'eval'             => ['tl_class' => 'w50'],],
+    'creditsGroupBy' => [
+        'label'            => &$GLOBALS['TL_LANG']['tl_module']['creditsGroupBy'],
+        'inputType'        => 'select',
+        'options_callback' => ['\HeimrichHannot\FileCredit\FileCredit', 'getGroupOptions'],
+        'reference'        => &$GLOBALS['TL_LANG']['tl_module']['refs']['creditsGroupBy'],
+        'sql'              => "varchar(64) NOT NULL default ''",
+        'eval'             => ['tl_class' => 'w50', 'includeBlankOption' => true],],
+    'creditsPrefix' => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_module']['creditsPrefix'],
+        'inputType' => 'text',
+        'default'   => '&copy;&nbsp;',
+        'sql'       => "varchar(255) NOT NULL default ''",
+        'eval'      => ['tl_class' => 'w50', 'decodeEntities' => true],],];
 
 $dc['fields'] = array_merge($dc['fields'], $arrFields);
 
@@ -50,9 +42,9 @@ class tl_module_filecredits extends Backend
 {
 	public function getFileCredits()
 	{
-		$arrOptions = array();
+		$arrOptions = [];
 		
-		$objFiles = \FilesModel::findBy(array('copyright != ""'), "");
+		$objFiles = \FilesModel::findBy(['copyright != ""'], "");
 
 		if ($objFiles === null) {
 			return $arrOptions;

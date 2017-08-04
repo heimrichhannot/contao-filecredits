@@ -37,11 +37,11 @@ class ModuleFileCredit extends \Module
 	{
 		FileCredit::indexStop();
 
-		$arrPids = array();
+		$arrPids = [];
 
 		if ($this->defineRoot && $this->rootPage > 0) {
 			if (($objRoot = $this->objModel->getRelated('rootPage')) !== null) {
-				$arrPids = \Database::getInstance()->getChildRecords(array($objRoot->id), 'tl_page');
+				$arrPids = \Database::getInstance()->getChildRecords([$objRoot->id], 'tl_page');
 			}
 		}
 

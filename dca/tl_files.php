@@ -14,22 +14,20 @@ $dc = &$GLOBALS['TL_DCA']['tl_files'];
 $dc['palettes']['default'] = str_replace('name', 'name,copyright', $dc['palettes']['default']);
 
 
-$dc['fields']['copyright'] = array
-(
-	'label'                   	=> &$GLOBALS['TL_LANG']['tl_files']['copyright'],
-	'inputType'               	=> 'tagsinput',
-	'options_callback'			=> array('tl_files_filecredits', 'getCreditOptions'),
-	'eval'						=> array('maxlength'=>255, 'decodeEntities'=>true, 'tl_class'=>'long clr', 'helpwizard'=>true, 'freeInput' => true, 'multiple' => true),
-	'reference'					=> &$GLOBALS['TL_LANG']['tl_files'],
-	'sql'                     	=> "blob NULL"
-);
+$dc['fields']['copyright'] = [
+    'label'                   	=> &$GLOBALS['TL_LANG']['tl_files']['copyright'],
+    'inputType'               	=> 'tagsinput',
+    'options_callback'			=> ['tl_files_filecredits', 'getCreditOptions'],
+    'eval'						=> ['maxlength' =>255, 'decodeEntities' =>true, 'tl_class' =>'long clr', 'helpwizard' =>true, 'freeInput' => true, 'multiple' => true],
+    'reference'					=> &$GLOBALS['TL_LANG']['tl_files'],
+    'sql'                     	=> "blob NULL"];
 
 class tl_files_filecredits extends Backend
 {
 
 	public function getCreditOptions($dc)
 	{
-		$arrOptions = array();
+		$arrOptions = [];
 
 		$objFileCredits =  \HeimrichHannot\FileCredit\FilesModel::findWithCopyright();
 

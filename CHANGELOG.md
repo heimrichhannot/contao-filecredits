@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2017-08-04
+
+### Added
+- ability to add a copyright field to any DCA which is synced to the linked file field (see README.md)
+
 ## [2.1.16] - 2017-05-15
 
 ### Fixed

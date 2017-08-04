@@ -33,9 +33,9 @@ $GLOBALS['TL_LANG']['tl_filecredit_page']['publish_legend'] = 'Veröffentlichung
 /**
  * Buttons
  */
-$GLOBALS['TL_LANG']['tl_filecredit_page']['new']    = array('Neue Seitenangabe', 'Erstellt eine neue Seitenangabe.');
-$GLOBALS['TL_LANG']['tl_filecredit_page']['edit']   = array('Seitenangabe bearbeiten', 'Seitenangabe ID %s bearbeiten');
-$GLOBALS['TL_LANG']['tl_filecredit_page']['copy']   = array('Seitenangabe duplizieren', 'Seitenangabe ID %s duplizieren');
-$GLOBALS['TL_LANG']['tl_filecredit_page']['toggle'] = array('Seitenangabe veröffentlichen', 'Seitenangabe ID %s veröffentlichen/unveröffentlichen');
-$GLOBALS['TL_LANG']['tl_filecredit_page']['delete'] = array('Seitenangabe löschen', 'Seitenangabe ID %s löschen');
-$GLOBALS['TL_LANG']['tl_filecredit_page']['show']   = array('Seitenangabe anzeigen', 'Seitenangabe ID %s anzeigen');
+$GLOBALS['TL_LANG']['tl_filecredit_page']['new']    = ['Neue Seitenangabe', 'Erstellt eine neue Seitenangabe.'];
+$GLOBALS['TL_LANG']['tl_filecredit_page']['edit']   = ['Seitenangabe bearbeiten', 'Seitenangabe ID %s bearbeiten'];
+$GLOBALS['TL_LANG']['tl_filecredit_page']['copy']   = ['Seitenangabe duplizieren', 'Seitenangabe ID %s duplizieren'];
+$GLOBALS['TL_LANG']['tl_filecredit_page']['toggle'] = ['Seitenangabe veröffentlichen', 'Seitenangabe ID %s veröffentlichen/unveröffentlichen'];
+$GLOBALS['TL_LANG']['tl_filecredit_page']['delete'] = ['Seitenangabe löschen', 'Seitenangabe ID %s löschen'];
+$GLOBALS['TL_LANG']['tl_filecredit_page']['show']   = ['Seitenangabe anzeigen', 'Seitenangabe ID %s anzeigen'];

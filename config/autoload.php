@@ -12,17 +12,17 @@
 /**
  * Register the namespaces
  */
-ClassLoader::addNamespaces(array
-(
-	'HeimrichHannot',
-));
+ClassLoader::addNamespaces(
+    [
+	'HeimrichHannot',]
+);
 
 
 /**
  * Register the classes
  */
-ClassLoader::addClasses(array
-(
+ClassLoader::addClasses(
+    [
 	// Models
 	'HeimrichHannot\FileCredit\FileCreditModel'     => 'system/modules/filecredits/models/FileCreditModel.php',
 	'HeimrichHannot\FileCredit\FileCreditPageModel' => 'system/modules/filecredits/models/FileCreditPageModel.php',
@@ -38,15 +38,15 @@ ClassLoader::addClasses(array
 	'HeimrichHannot\FileCredit\Validator'           => 'system/modules/filecredits/classes/Validator.php',
 	'Contao\Feed'                                   => 'system/modules/filecredits/classes/Feed.php',
 	'HeimrichHannot\FileCredit\FileCreditIndex'     => 'system/modules/filecredits/classes/FileCreditIndex.php',
-	'HeimrichHannot\FileCredit\FileCredit'          => 'system/modules/filecredits/classes/FileCredit.php',
-));
+	'HeimrichHannot\FileCredit\FileCredit'          => 'system/modules/filecredits/classes/FileCredit.php',]
+);
 
 
 /**
  * Register the templates
  */
-TemplateLoader::addFiles(array
-(
+TemplateLoader::addFiles(
+    [
 	'mod_filecredit_empty'                   => 'system/modules/filecredits/templates/modules',
 	'mod_filecredit'                         => 'system/modules/filecredits/templates/modules',
 	'filecredit_grouped'                     => 'system/modules/filecredits/templates/credit',
@@ -54,5 +54,5 @@ TemplateLoader::addFiles(array
 	'filecredit_default'                     => 'system/modules/filecredits/templates/credit',
 	'be_filecredits_sync'                    => 'system/modules/filecredits/templates/backend',
 	'be_filecredits_sync_pageselection'      => 'system/modules/filecredits/templates/backend',
-	'be_filecredits_sync_pageselection_tree' => 'system/modules/filecredits/templates/backend',
-));
+	'be_filecredits_sync_pageselection_tree' => 'system/modules/filecredits/templates/backend',]
+);

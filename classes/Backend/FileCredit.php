@@ -207,7 +207,7 @@ class FileCredit extends \Backend implements \executable
             }
 
             $objTemplate                 = new \BackendTemplate('be_filecredits_sync_pageselection_tree');
-            $objTemplate->pages          = is_array($arrPages) ? $arrPages : array();
+            $objTemplate->pages          = is_array($arrPages) ? $arrPages : [];
             $objTemplate->checkAllLegend = $GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'];
             die($objTemplate->parse());
         }
@@ -236,10 +236,10 @@ class FileCredit extends \Backend implements \executable
 
         if ($objPages->numRows < 1)
         {
-            return array();
+            return [];
         }
 
-        $arrPages = array();
+        $arrPages = [];
 
         // Recursively walk through all subpages
         while ($objPages->next())

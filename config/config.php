@@ -19,15 +19,13 @@ $GLOBALS['FE_MOD']['miscellaneous']['filecredit'] = 'HeimrichHannot\FileCredit\M
  */
 array_insert(
 	$GLOBALS['BE_MOD']['system'],
-	1,
-	array(
-		'filecredit' => array
-		(
-			'tables' => array('tl_filecredit', 'tl_filecredit_page'),
-			'icon'   => 'system/modules/filecredits/assets/img/icon.png',
-			'sync'   => array('HeimrichHannot\FileCredit\Backend\FileCredit', 'sync'),
-		),
-	)
+    1,
+    [
+        'filecredit' => [
+            'tables' => ['tl_filecredit', 'tl_filecredit_page'],
+            'icon'   => 'system/modules/filecredits/assets/img/icon.png',
+            'sync'   => ['HeimrichHannot\FileCredit\Backend\FileCredit', 'sync'],],
+    ]
 );
 
 /**
@@ -49,7 +47,7 @@ if (TL_MODE == 'BE') {
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['executeResize'][] = array('\HeimrichHannot\FileCredit\Hooks', 'executeResizeHook');
+$GLOBALS['TL_HOOKS']['executeResize'][] = ['\HeimrichHannot\FileCredit\Hooks', 'executeResizeHook'];
 
 /**
  * Models

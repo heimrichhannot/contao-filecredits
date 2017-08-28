@@ -12,6 +12,7 @@ namespace HeimrichHannot\FileCredit\Backend;
 
 
 use HeimrichHannot\FileCredit\Automator;
+use HeimrichHannot\Haste\Cache\FileCache;
 
 class FileCredit extends \Backend implements \executable
 {
@@ -46,24 +47,20 @@ class FileCredit extends \Backend implements \executable
         $objTemplate->isActive      = $this->isActive();
         $objTemplate->pageSelection = $this->generatePageSelection();
 
-        if (!\Config::get('headerAddXFrame') || !\Config::get('headerAllowOrigins'))
-        {
+        if (!\Config::get('headerAddXFrame') || !\Config::get('headerAllowOrigins')) {
             $objTemplate->originInfo = $GLOBALS['TL_LANG']['tl_filecredit']['originInfo'];
         }
 
         // Add the error message
-        if ($_SESSION['REBUILD_FILECREDIT_ERROR'] != '')
-        {
+        if ($_SESSION['REBUILD_FILECREDIT_ERROR'] != '') {
             $objTemplate->indexMessage            = $_SESSION['REBUILD_FILECREDIT_ERROR'];
             $_SESSION['REBUILD_FILECREDIT_ERROR'] = '';
         }
 
         // Rebuild the index
-        if (\Input::get('act') == 'index')
-        {
+        if (\Input::get('act') == 'index') {
             // Check the request token (see #4007)
-            if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt')))
-            {
+            if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt'))) {
                 $this->Session->set('INVALID_TOKEN_URL', \Environment::get('request'));
                 $this->redirect('contao/confirm.php');
             }
@@ -71,10 +68,8 @@ class FileCredit extends \Backend implements \executable
             $arrPages = static::findFileCreditPages();
 
             // HOOK: take additional pages (news, events…)
-            if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages']))
-            {
-                foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback)
-                {
+            if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
+                foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
                     $this->import($callback[0]);
                     $arrPages = $this->{$callback[0]}->{$callback[1]}($arrPages);
                 }
@@ -82,27 +77,23 @@ class FileCredit extends \Backend implements \executable
 
             $blnTruncateTable = true;
 
-            if (\Input::get('limitfilecreditpages'))
-            {
+            if (\Input::get('limitfilecreditpages')) {
                 $arrSelectedPages = \Input::get('filecreditpages');
 
-                if (is_array($arrSelectedPages) && !empty($arrSelectedPages))
-                {
+                if (is_array($arrSelectedPages) && !empty($arrSelectedPages)) {
                     $arrPages         = array_keys(array_intersect(array_flip($arrPages), $arrSelectedPages));
                     $blnTruncateTable = false;
                 }
             }
 
             // Return if there are no pages
-            if (empty($arrPages))
-            {
+            if (empty($arrPages)) {
                 $_SESSION['REBUILD_FILECREDIT_ERROR'] = $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'];
                 \Controller::redirect(\System::getReferer());
             }
 
             // Truncate the search tables
-            if ($blnTruncateTable)
-            {
+            if ($blnTruncateTable) {
                 Automator::purgeFileCreditTables();
             }
 
@@ -116,23 +107,21 @@ class FileCredit extends \Backend implements \executable
             $this->Database->prepare("DELETE FROM tl_session WHERE tstamp<? OR hash=?")->execute(($time - \Config::get('sessionTimeout')), $strHash);
 
             // Log in the front end user
-            if (is_numeric(\Input::get('user')) && \Input::get('user') > 0)
-            {
+            if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
                 // Insert a new session
                 $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")->execute(
-                        \Input::get('user'),
-                        $time,
-                        'FE_USER_AUTH',
-                        session_id(),
-                        \Environment::get('ip'),
-                        $strHash
-                    );
+                    \Input::get('user'),
+                    $time,
+                    'FE_USER_AUTH',
+                    session_id(),
+                    \Environment::get('ip'),
+                    $strHash
+                );
 
                 // Set the cookie
                 $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, false, true);
             } // Log out the front end user
-            else
-            {
+            else {
                 // Unset the cookies
                 $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, false, true);
                 $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
@@ -141,16 +130,19 @@ class FileCredit extends \Backend implements \executable
             $strBuffer = '';
             $rand      = rand();
 
+            $cache = FileCache::getInstance();
+
             // Display the pages
-            for ($i = 0, $c = count($arrPages); $i < $c; $i++)
-            {
-                if (!\Validator::isUrl($arrPages[$i]))
-                {
+            for ($i = 0, $c = count($arrPages); $i < $c; $i++) {
+                if (!\Validator::isUrl($arrPages[$i])) {
                     continue;
                 }
 
+                // clear page cache
+                $cache->deleteItem('fcp_' . md5(\StringUtil::standardize(\StringUtil::restoreBasicEntities($arrPages[$i]))));
+
                 $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100)
-                              . '</span><br>';
+                    . '</span><br>';
                 unset($arrPages[$i]); // see #5681
             }
 
@@ -190,17 +182,13 @@ class FileCredit extends \Backend implements \executable
 
     protected function registerEvents()
     {
-        if (\Environment::get('isAjaxRequest') && \Input::get('action') == 'toggleFileCreditPages')
-        {
-            if (\Input::get('state') == 1)
-            {
+        if (\Environment::get('isAjaxRequest') && \Input::get('action') == 'toggleFileCreditPages') {
+            if (\Input::get('state') == 1) {
                 $arrPages = static::findFileCreditPages();
 
                 // HOOK: take additional pages
-                if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages']))
-                {
-                    foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback)
-                    {
+                if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
+                    foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
                         $arrPages = \System::importStatic($callback[0])->{$callback[1]}($arrPages);
                     }
                 }
@@ -217,9 +205,9 @@ class FileCredit extends \Backend implements \executable
      * Get all pages for filecredit index and return them as array
      *
      * @param integer $pid
-     * @param string  $domain
+     * @param string $domain
      * @param boolean $blnIsSitemap
-     * @param string  $strLanguage
+     * @param string $strLanguage
      *
      * @return array
      */
@@ -234,46 +222,37 @@ class FileCredit extends \Backend implements \executable
             . "') AND published='1' ORDER BY sorting"
         )->execute($pid);
 
-        if ($objPages->numRows < 1)
-        {
+        if ($objPages->numRows < 1) {
             return [];
         }
 
         $arrPages = [];
 
         // Recursively walk through all subpages
-        while ($objPages->next())
-        {
+        while ($objPages->next()) {
 
             $domain = '';
 
             $objPage = \PageModel::findWithDetails($objPages->id);
 
-            if ($objPage->domain != '')
-            {
+            if ($objPage->domain != '') {
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . TL_PATH . '/';
-            }
-            else
-            {
+            } else {
                 $domain = \Environment::get('base');
             }
 
             // Set domain
-            if ($objPage->type == 'root')
-            {
+            if ($objPage->type == 'root') {
                 $strLanguage = $objPage->language;
             } // Add regular pages
-            elseif ($objPage->type == 'regular')
-            {
+            elseif ($objPage->type == 'regular') {
                 // Not protected
-                if ((!$objPage->protected || \Config::get('indexProtected')))
-                {
+                if ((!$objPage->protected || \Config::get('indexProtected'))) {
                     // Published
                     if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time)
                         && ($objPage->stop == ''
                             || $objPage->stop > ($time + 60))
-                    )
-                    {
+                    ) {
                         $arrPages[] = $domain . str_replace($domain, '', static::generateFrontendUrl($objPage->row(), null, $strLanguage));
 
                         // Get articles with teaser
@@ -282,15 +261,14 @@ class FileCredit extends \Backend implements \executable
                             . "') AND published='1' AND showTeaser='1' ORDER BY sorting"
                         )->execute($objPage->id);
 
-                        while ($objArticle->next())
-                        {
+                        while ($objArticle->next()) {
                             $arrPages[] = $domain . str_replace(
                                     $domain,
                                     '',
                                     static::generateFrontendUrl(
                                         $objPage->row(),
                                         '/articles/' . (($objArticle->alias != ''
-                                                         && !\Config::get(
+                                            && !\Config::get(
                                                 'disableAlias'
                                             )) ? $objArticle->alias : $objArticle->id),
                                         $strLanguage
@@ -304,8 +282,7 @@ class FileCredit extends \Backend implements \executable
             // Get subpages
             if ((!$objPage->protected || \Config::get('indexProtected'))
                 && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false
-            )
-            {
+            ) {
                 $arrPages = array_merge($arrPages, $arrSubpages);
             }
         }

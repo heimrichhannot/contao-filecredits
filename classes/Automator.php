@@ -11,6 +11,8 @@
 namespace HeimrichHannot\FileCredit;
 
 
+use HeimrichHannot\Haste\Cache\FileCache;
+
 class Automator extends \System
 {
 
@@ -24,6 +26,10 @@ class Automator extends \System
 		// Truncate the tables
 		$objDatabase->execute("TRUNCATE TABLE tl_filecredit");
 		$objDatabase->execute("TRUNCATE TABLE tl_filecredit_page");
+
+		// clear file cache
+        $cache      = FileCache::getInstance();
+        $cache->deleteItemsByTag('fcp');
 
 		// Add a log entry
 		\System::log('Purged the filecredit tables', __METHOD__, TL_CRON);

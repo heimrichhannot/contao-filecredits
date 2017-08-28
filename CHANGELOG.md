@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] - 2017-08-28
+
+### Added
+- cache filecredits per page for 24 hours, to reduce database queries
+
 ## [2.2.0] - 2017-08-04
 
 ### Added

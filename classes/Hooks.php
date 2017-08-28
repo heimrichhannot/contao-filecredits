@@ -11,22 +11,17 @@
 
 namespace HeimrichHannot\FileCredit;
 
-
 class Hooks extends \Controller
 {
+    public function executeResizeHook($objImage)
+    {
+        if (TL_MODE == 'BE') {
+            return false;
+        } // do not return a string to not interrupt Image::executeResize
 
-	public function executeResizeHook($objImage)
-	{
-		if(TL_MODE == 'BE') return false; // do not return a string to not interrupt Image::executeResize
+        FileCreditIndex::indexFile($objImage);
 
-		$objFile = \FilesModel::findByPath($objImage->getOriginalPath());
-
-		if($objFile !== null)
-		{
-			FileCreditIndex::indexFile($objFile);
-		}
-
-		return false; // do not return a string to not interrupt Image::executeResize
-	}
+        return false; // do not return a string to not interrupt Image::executeResize
+    }
 
 }

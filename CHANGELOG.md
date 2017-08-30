@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.2] - 2017-08-30
+
+### Fixed
+- standardize compatibility for contao 3
+
 ## [2.2.1] - 2017-08-28
 
 ### Added

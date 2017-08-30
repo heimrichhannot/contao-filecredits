@@ -159,7 +159,7 @@ class FileCreditIndex extends \Controller
 
         $imagePaths = [];
         $cache      = FileCache::getInstance();
-        $cacheItem  = $cache->getItem('fcp_' . md5(\StringUtil::standardize(\StringUtil::restoreBasicEntities($objPage->getAbsoluteUrl()))));
+        $cacheItem  = $cache->getItem('fcp_' . md5(standardize(\StringUtil::restoreBasicEntities($objPage->getAbsoluteUrl()))));
 
         // in backend when synchronizing credits, cache input parameter = 0
         if ($cacheItem->get() !== null) {

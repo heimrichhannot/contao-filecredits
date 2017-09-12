@@ -139,7 +139,7 @@ class FileCredit extends \Backend implements \executable
                 }
 
                 // clear page cache
-                $cache->deleteItem('fcp_' . md5(\StringUtil::standardize(\StringUtil::restoreBasicEntities($arrPages[$i]))));
+                $cache->deleteItem('fcp_' . md5(standardize(\StringUtil::restoreBasicEntities($arrPages[$i]))));
 
                 $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100)
                     . '</span><br>';

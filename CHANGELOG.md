@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.4] - 2017-10-20
+
+### Changed
+- removed `menatwork/contao-multicolumnwizard` dependency
+
 ## [2.2.3] - 2017-09-12
 
 ### Fixed

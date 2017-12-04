@@ -21,6 +21,35 @@ class FileCredit extends \Controller
 
     const FILECREDIT_GROUPBY_COPYRIGHT = 'copyright';
 
+
+    /**
+     * Get file credits for a file
+     * @param mixed $file Valid path or uuid
+     * @return bool|array The credits as array, or false if no credits set or file not found or invalid.
+     */
+    public static function getFileCredit($file)
+    {
+        $model = null;
+
+        if (\Contao\Validator::isUuid($file)) {
+            $model = \Contao\FilesModel::findByUuid($file);
+        } elseif ($file) {
+            $model = \Contao\FilesModel::findByPath($file);
+        }
+
+        if ($model === null) {
+            return false;
+        }
+
+        $credits = array_filter(deserialize($model->copyright, true));
+
+        if (empty($credits)) {
+            return false;
+        }
+
+        return $credits;
+    }
+
     public static function parseCredit(FileCreditModel $objModel, array $arrPids = [], $objModule)
     {
         global $objPage;
@@ -28,14 +57,12 @@ class FileCredit extends \Controller
         $objTemplate = new \FrontendTemplate(!$objModule->creditsGroupBy ? 'filecredit_default' : 'filecredit_grouped');
 
         // skip if no files model exists
-        if (($objFilesModel = $objModel->getRelated('uuid')) === null)
-        {
+        if (($objFilesModel = $objModel->getRelated('uuid')) === null) {
             return null;
         }
 
         // cleanup: remove credits where copyright was deleted
-        if ($objFilesModel->copyright == '')
-        {
+        if ($objFilesModel->copyright == '') {
             FileCreditPageModel::deleteByPid($objModel->id);
             $objModel->delete();
 
@@ -43,31 +70,26 @@ class FileCredit extends \Controller
         }
 
         // skip if credit occurs on no page
-        if (($objCreditPages = FileCreditPageModel::findPublishedByPids([$objModel->id])) === null)
-        {
+        if (($objCreditPages = FileCreditPageModel::findPublishedByPids([$objModel->id])) === null) {
             return null;
         }
 
-        while ($objCreditPages->next())
-        {
+        while ($objCreditPages->next()) {
             $arrCredit = $objCreditPages->row();
 
             // not a child of current root page
-            if (!empty($arrPids) && !in_array($arrCredit['page'], $arrPids))
-            {
+            if (!empty($arrPids) && !in_array($arrCredit['page'], $arrPids)) {
                 continue;
             }
 
-            if ($arrCredit['url'] == '' && ($objTarget = \PageModel::findByPk($arrCredit['page'])) !== null)
-            {
+            if ($arrCredit['url'] == '' && ($objTarget = \PageModel::findByPk($arrCredit['page'])) !== null) {
                 $arrCredit['url'] = \Controller::generateFrontendUrl($objTarget->row());
             }
 
             $arrPages[] = $arrCredit;
         }
 
-        if ($arrPages === null)
-        {
+        if ($arrPages === null) {
             return null;
         }
 
@@ -82,30 +104,25 @@ class FileCredit extends \Controller
         $objTemplate->pageCount = count($arrPages);
 
         // colorbox support
-        if ($objPage->outputFormat == 'xhtml')
-        {
+        if ($objPage->outputFormat == 'xhtml') {
             $strLightboxId = 'lightbox';
-        }
-        else
-        {
+        } else {
             $strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objFilesModel->id), 0, 6) . ']';
         }
 
         $objTemplate->attribute =
             ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $objModule->id . '" data-lightbox="' : ' rel="')
-                              . $strLightboxId . '"' : '');
+                . $strLightboxId . '"' : '');
 
         $objTemplate->addImage = false;
 
         // Add an image
-        if (!is_file(TL_ROOT . '/' . $objModel->path))
-        {
+        if (!is_file(TL_ROOT . '/' . $objModel->path)) {
             $arrData = ['singleSRC' => $objFilesModel->path, 'doNotIndex' => true];
 
             $size = deserialize($objModule->imgSize);
 
-            if ($size[0] > 0 || $size[1] > 0 || is_numeric($size[2]))
-            {
+            if ($size[0] > 0 || $size[1] > 0 || is_numeric($size[2])) {
                 $arrData['size'] = $objModule->imgSize;
             }
 
@@ -125,11 +142,9 @@ class FileCredit extends \Controller
     {
         $arrCredits = [];
 
-        while ($objModels->next())
-        {
+        while ($objModels->next()) {
 
-            if (($strReturn = static::parseCredit($objModels->current(), $arrPids, $objModule)) === null)
-            {
+            if (($strReturn = static::parseCredit($objModels->current(), $arrPids, $objModule)) === null) {
                 continue;
             }
 
@@ -141,8 +156,7 @@ class FileCredit extends \Controller
         $arrCredits = static::groupCredits($arrCredits, $objModule->creditsGroupBy);
 
         $arrCredits = array_map(
-            function ($value) use (&$arrCredit)
-            {
+            function ($value) use (&$arrCredit) {
                 return $value['output'];
             },
             $arrCredits
@@ -157,10 +171,8 @@ class FileCredit extends \Controller
 
         $arrOptions = [];
 
-        foreach ($ref->getConstants() as $key => $value)
-        {
-            if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_GROUPBY'))
-            {
+        foreach ($ref->getConstants() as $key => $value) {
+            if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_GROUPBY')) {
                 continue;
             }
 
@@ -176,11 +188,9 @@ class FileCredit extends \Controller
 
         $arrOptions = [];
 
-        foreach ($ref->getConstants() as $key => $value)
-        {
+        foreach ($ref->getConstants() as $key => $value) {
 
-            if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_SORTBY'))
-            {
+            if (!\HeimrichHannot\Haste\Util\StringUtil::startsWith($key, 'FILECREDIT_SORTBY')) {
                 continue;
             }
 
@@ -194,8 +204,7 @@ class FileCredit extends \Controller
     {
         $ref = new \ReflectionClass(__CLASS__);
 
-        switch ($sort)
-        {
+        switch ($sort) {
             case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_ASC):
             case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
                 return strtolower(ltrim(preg_replace('/[^A-Za-z0-9 ]/', '', $objTemplate->copyright)));
@@ -211,8 +220,7 @@ class FileCredit extends \Controller
     {
         $ref = new \ReflectionClass(__CLASS__);
 
-        switch ($mode)
-        {
+        switch ($mode) {
             case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
                 return $objTemplate->copyright;
             default:
@@ -227,8 +235,7 @@ class FileCredit extends \Controller
         $dir  = SORT_ASC;
         $type = SORT_REGULAR;
 
-        switch ($sort)
-        {
+        switch ($sort) {
             case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_ASC):
             case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
                 $type = SORT_STRING OR SORT_FLAG_CASE;
@@ -239,8 +246,7 @@ class FileCredit extends \Controller
                 break;
         }
 
-        switch ($sort)
-        {
+        switch ($sort) {
             case $ref->getConstant(FILECREDIT_SORTBY_PAGES_DESC):
             case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
                 $dir = SORT_DESC;
@@ -255,8 +261,7 @@ class FileCredit extends \Controller
 
     public static function groupCredits(array $arrCredits, $mode)
     {
-        if (!$mode)
-        {
+        if (!$mode) {
             return $arrCredits;
         }
 
@@ -264,20 +269,17 @@ class FileCredit extends \Controller
         $arrGroups = [];
         $arrReturn = [];
 
-        switch ($mode)
-        {
+        switch ($mode) {
             case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
 
 
                 $objTemplate = new \FrontendTemplate('filecreditgroup_' . $mode);
 
-                foreach ($arrCredits as $arrCredit)
-                {
+                foreach ($arrCredits as $arrCredit) {
                     $arrGroups[$arrCredit['group']][] = $arrCredit['output'];
                 }
 
-                foreach ($arrGroups as $title => $items)
-                {
+                foreach ($arrGroups as $title => $items) {
                     $objTemplate->cssID    = 'filecredit_' . substr(md5($title), 0, 8);
                     $objTemplate->title    = $title;
                     $objTemplate->items    = $items;
@@ -294,8 +296,7 @@ class FileCredit extends \Controller
     private static function array_sort_by_column(&$arr, $col, $dir = SORT_ASC, $type = SORT_REGULAR)
     {
         $sort_col = [];
-        foreach ($arr as $key => $row)
-        {
+        foreach ($arr as $key => $row) {
             $sort_col[$key] = $row[$col];
         }
 
@@ -307,16 +308,13 @@ class FileCredit extends \Controller
         $arrCopyright = deserialize($objFilesModel->copyright, true);
         $arrList      = [];
 
-        foreach ($arrCopyright as $strCopyright)
-        {
+        foreach ($arrCopyright as $strCopyright) {
             $strCopyright = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($strCopyright));
 
-            if ($objModule->creditsPrefix != '')
-            {
+            if ($objModule->creditsPrefix != '') {
                 $strPrefix = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($objModule->creditsPrefix));
 
-                if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false))
-                {
+                if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
                     $strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
                 }
             }
@@ -354,8 +352,7 @@ class FileCredit extends \Controller
 
         $arrDca['fields'][$strField] = $GLOBALS['TL_DCA']['tl_files']['fields']['copyright'];
 
-        if (!$blnUseDefaultLabel)
-        {
+        if (!$blnUseDefaultLabel) {
             $arrDca['fields'][$strField]['label'] = &$GLOBALS['TL_LANG'][$strTable][$strField];
         }
 
@@ -367,38 +364,34 @@ class FileCredit extends \Controller
 
     public static function loadCopyright($varValue, \DataContainer $objDc)
     {
-        if (($objNews = \NewsModel::findByPk($objDc->id)) === null)
-        {
+        if (($objNews = \NewsModel::findByPk($objDc->id)) === null) {
             return null;
         }
 
         \Controller::loadDataContainer($objDc->table);
         \System::loadLanguageFile($objDc->table);
 
-        $arrDca = $GLOBALS['TL_DCA'][$objDc->table];
+        $arrDca        = $GLOBALS['TL_DCA'][$objDc->table];
         $strImageField = $arrDca['fields'][$objDc->field]['eval']['fileField'];
 
-        if ($strImageField && $objNews->{$strImageField} && ($objFile = FilesModel::findByUuid($objNews->{$strImageField})) !== null)
-        {
+        if ($strImageField && $objNews->{$strImageField} && ($objFile = FilesModel::findByUuid($objNews->{$strImageField})) !== null) {
             return $objFile->copyright;
         }
     }
 
     public static function saveCopyright($varValue, \DataContainer $objDc)
     {
-        if (($objNews = \NewsModel::findByPk($objDc->id)) === null)
-        {
+        if (($objNews = \NewsModel::findByPk($objDc->id)) === null) {
             return null;
         }
 
         \Controller::loadDataContainer($objDc->table);
         \System::loadLanguageFile($objDc->table);
 
-        $arrDca = $GLOBALS['TL_DCA'][$objDc->table];
+        $arrDca        = $GLOBALS['TL_DCA'][$objDc->table];
         $strImageField = $arrDca['fields'][$objDc->field]['eval']['fileField'];
 
-        if ($strImageField && $objNews->{$strImageField} && ($objFile = FilesModel::findByUuid($objNews->{$strImageField})) !== null)
-        {
+        if ($strImageField && $objNews->{$strImageField} && ($objFile = FilesModel::findByUuid($objNews->{$strImageField})) !== null) {
             $objFile->copyright = $varValue;
             $objFile->save();
         }

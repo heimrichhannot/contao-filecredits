@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.5] - 2017-11-04
+
+### Added
+- removed `FileCredit::getFileCredit()` that will return an array of file credits for a given file uuid or path
+- added `{{copyright::}}` filecredit that will return the file credits for a given uuid or path as delimited string
+
 ## [2.2.4] - 2017-10-20
 
 ### Changed

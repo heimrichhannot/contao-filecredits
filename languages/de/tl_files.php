@@ -29,5 +29,3 @@ $GLOBALS['TL_LANG']['tl_files']['shutterstock'][1] = 'Die Nennung des Shuttersto
 
 $GLOBALS['TL_LANG']['tl_files']['istockphoto'][0] = 'iStockphoto';
 $GLOBALS['TL_LANG']['tl_files']['istockphoto'][1] = '„<strong>©iStockphoto.com/Mitgliedsname</strong>“ <br />Quelle:<a href="http://deutsch.istockphoto.com/help/licenses">http://deutsch.istockphoto.com/help/licenses</a>';
-
-

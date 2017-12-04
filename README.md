@@ -25,3 +25,9 @@ If you want to get a shortcut copyright field next to e.g. some image field you 
 // example:
 \HeimrichHannot\FileCredit\FileCredit::addCopyrightFieldToDca('tl_news', 'detailsCopyright', 'detailsSingleSRC');
 ```
+
+### Hooks
+
+Name | Arguments | Expected return value | Description
+---- | --------- | --------------------- | -----------
+{{copyright::*::,}} | 1: file uuid (string) or file path, 2: credits delimiter (default: ,) | string | Return the file credits for a given uuid or path as delimited string.

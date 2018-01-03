@@ -16,23 +16,25 @@ use HeimrichHannot\Haste\Cache\FileCache;
 class Automator extends \System
 {
 
-	/**
-	 * Purge the search tables
-	 */
-	public static function purgeFileCreditTables()
-	{
-		$objDatabase = \Database::getInstance();
+    /**
+     * Purge the search tables
+     */
+    public static function purgeFileCreditTables()
+    {
+        $objDatabase = \Database::getInstance();
 
-		// Truncate the tables
-		$objDatabase->execute("TRUNCATE TABLE tl_filecredit");
-		$objDatabase->execute("TRUNCATE TABLE tl_filecredit_page");
+        $ids = $objDatabase->execute("SELECT id FROM tl_filecredit WHERE author = 0")->fetchEach('id');
 
-		// clear file cache
-        $cache      = FileCache::getInstance();
+        // Truncate the tables
+        $objDatabase->execute("DELETE FROM tl_filecredit WHERE author = 0");
+        $objDatabase->execute("DELETE FROM tl_filecredit_page WHERE id IN(" . implode(',', $ids) . ")");
+
+        // clear file cache
+        $cache = FileCache::getInstance();
         $cache->deleteItemsByTag('fcp');
 
-		// Add a log entry
-		\System::log('Purged the filecredit tables', __METHOD__, TL_CRON);
-	}
-	
+        // Add a log entry
+        \System::log('Purged the filecredit tables, except manual created credits.', __METHOD__, TL_CRON);
+    }
+
 }

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.6] - 2018-01-03
+
+### Added
+- `author` field within `tl_filecredit`, credits and pages with `author` wont be maintained, synced. 
+
 ## [2.2.5] - 2017-11-04
 
 ### Added

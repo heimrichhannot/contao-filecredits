@@ -1,12 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [3.0.2] - 2018-02-19
+## [3.0.1] - 2018-02-19
 
 ### Fixed
 - cronjob documentation in README.md
-
-## [3.0.1] - 2018-02-19
 
 ### Changed
 - removed `tl_settings.fileCreditsDisablePoorMansCron` already implemented by contao itself (`tl_settings.disableCron`)

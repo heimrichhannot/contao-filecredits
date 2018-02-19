@@ -2,6 +2,29 @@
 
 Contao module that adds credit support for images and files.
 
+## Installation
+
+```
+composer require heimrichhannot/contao-filecredits
+```
+
+### Install cron job (contao 4)
+```
+0 3 * * * /path/to/contao/vendor/heimrichhannot/contao-filecredits/bin/indexer # every day at 03:00 
+```
+
+### Install cron job (contao 3)
+```
+0 3 * * * /path/to/contao/composer/vendor/heimrichhannot/contao-filecredits/bin/indexer # every day at 03:00 
+```
+
+## Filecredits 3.x
+
+Filecredits 3 yields an huge performance due to credit index within cron job only. Filecredits makes usage of `executeResize` Hook, which is triggered
+every time an image is resized. If you use responsive images this Hook will be triggered not only once, but for every src-set provided.
+Filecredit 2.x invoked the hook within every client request, which braked down your website performance, based on number of images per page.
+Filecredit 3 now triggers a daily poor mans cron, or you can declare your own cron job within crontab, see Installation. 
+
 ## Filecredits 2.x
 
 Filecredits 2.x is a complete redevelopment. If you attached your custom modules to filecredits 1.x, we would not recommend to upgrade.

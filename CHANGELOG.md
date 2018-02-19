@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2018-02-19
+
+### Changed
+- detach filecredit indexer from current request by using cron jobs
+
 ## [2.2.6] - 2018-01-03
 
 ### Added

@@ -12,8 +12,14 @@
 namespace HeimrichHannot\FileCredit;
 
 
+use Contao\Controller;
+use Contao\PageModel;
+use Contao\System;
+
 class FileCredit extends \Controller
 {
+    const REQUEST_INDEX_PARAM = 'filecredit_index';
+
     const FILECREDIT_SORTBY_COPYRIGHT_ASC  = 'copyright_asc';
     const FILECREDIT_SORTBY_COPYRIGHT_DESC = 'copyright_desc';
     const FILECREDIT_SORTBY_PAGES_ASC      = 'pagecount_asc';
@@ -397,5 +403,108 @@ class FileCredit extends \Controller
         }
 
         return $varValue;
+    }
+
+    /**
+     * Get all pages for filecredit index and return them as array
+     *
+     * @param integer $pid
+     * @param string $domain
+     * @param boolean $blnIsSitemap
+     * @param string $strLanguage
+     *
+     * @return array
+     */
+    protected static function findFileCreditPages($pid = 0, $domain = '', $blnIsSitemap = false, $strLanguage = '')
+    {
+        $time        = \Date::floorToMinute();
+        $objDatabase = \Database::getInstance();
+
+        // Get published pages
+        $objPages = $objDatabase->prepare(
+            "SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60)
+            . "') AND published='1' ORDER BY sorting"
+        )->execute($pid);
+
+        if ($objPages->numRows < 1) {
+            return [];
+        }
+
+        $arrPages = [];
+
+        // Recursively walk through all subpages
+        while ($objPages->next()) {
+            $objPage = \PageModel::findWithDetails($objPages->id);
+
+            if ($objPage->domain != '') {
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
+            } else {
+                $rootPage = PageModel::findByPk($objPage->rootId);
+
+                if ('' === $rootPage->domain) {
+                    System::log(sprintf('Filecredit Indexer: You must declare a domain on the root page of page with id %s in order to index file credits.', $objPage->id), __METHOD__, TL_ERROR);
+                }
+
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $rootPage->domain . '/';
+            }
+
+            // Set domain
+            if ($objPage->type == 'root') {
+                $strLanguage = $objPage->language;
+            } // Add regular pages
+            elseif ($objPage->type == 'regular') {
+                // Not protected
+                if ((!$objPage->protected)) {
+                    // Published
+                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time)
+                        && ($objPage->stop == ''
+                            || $objPage->stop > ($time + 60))
+                    ) {
+                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPage->row(), null, $strLanguage);
+                    }
+                }
+            }
+
+            // Get subpages
+            if ((!$objPage->protected)
+                && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false
+            ) {
+                $arrPages = array_merge($arrPages, $arrSubpages);
+            }
+        }
+
+        return $arrPages;
+    }
+
+    /**
+     * Find all credit pages, including all news, events and more
+     * @return array
+     */
+    public static function findAllFileCreditPages()
+    {
+        $arrPages = static::findFileCreditPages();
+
+        // HOOK: take additional pages (news, events…)
+        if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
+            foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
+                if (($objCallback = \Controller::importStatic($callback[0])) !== null) {
+                    $arrPages = $objCallback->{$callback[1]}($arrPages);
+                }
+            }
+        }
+
+        $arrPages = array_map(function ($url) {
+            $url = str_replace(['/app_dev.php', ':0/'], ['', '/'], $url);
+
+            if (false === strpos($url, static::REQUEST_INDEX_PARAM)) {
+                return $url . '?' . static::REQUEST_INDEX_PARAM . '=' . time();
+            }
+
+            return $url;
+        }, $arrPages);
+
+        $arrPages = array_unique($arrPages);
+
+        return $arrPages;
     }
 }

@@ -20,12 +20,11 @@ $GLOBALS['TL_DCA']['tl_filecredit_page'] = [
         'ptable'        => 'tl_filecredit',
         'sql'           => [
             'keys' => [
-                'id'       => 'primary',
-                'pid'      => 'index',
-                'page'     => 'index',
-                'url'      => 'index'
+                'id'   => 'primary',
+                'pid'  => 'index',
+                'page' => 'index',
+                'url'  => 'index',
             ],
-
         ],
     ],
     // List
@@ -67,7 +66,7 @@ $GLOBALS['TL_DCA']['tl_filecredit_page'] = [
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
                 'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
-                    . '\'))return false;Backend.getScrollOffset()"',
+                                . '\'))return false;Backend.getScrollOffset()"',
             ],
             'toggle' => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_filecredit_page']['toggle'],
@@ -166,7 +165,7 @@ class tl_filecredit_page extends \Backend
     /**
      * Return the "toggle visibility" button
      *
-     * @param array $row
+     * @param array  $row
      * @param string $href
      * @param string $label
      * @param string $title
@@ -177,32 +176,35 @@ class tl_filecredit_page extends \Backend
      */
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        if (strlen(Input::get('tid'))) {
+        if (strlen(Input::get('tid')))
+        {
             $this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
         // Check permissions AFTER checking the tid, so hacking attempts are logged
-        if (!$this->User->hasAccess('tl_filecredit_page::published', 'alexf')) {
+        if (!$this->User->hasAccess('tl_filecredit_page::published', 'alexf'))
+        {
             return '';
         }
 
         $href .= '&amp;tid=' . $row['id'] . '&amp;state=' . ($row['published'] ? '' : 1);
 
-        if (!$row['published']) {
+        if (!$row['published'])
+        {
             $icon = 'invisible.gif';
         }
 
         return '<a href="' . $this->addToUrl($href) . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label)
-            . '</a> ';
+               . '</a> ';
     }
 
 
     /**
      * Disable/enable a user group
      *
-     * @param integer $intId
-     * @param boolean $blnVisible
+     * @param integer       $intId
+     * @param boolean       $blnVisible
      * @param DataContainer $dc
      */
     public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null)
@@ -212,18 +214,24 @@ class tl_filecredit_page extends \Backend
         Input::setGet('act', 'toggle');
 
         // Check permissions to publish
-        if (!$this->User->hasAccess('tl_filecredit_page::published', 'alexf')) {
+        if (!$this->User->hasAccess('tl_filecredit_page::published', 'alexf'))
+        {
             $this->log('Not enough permissions to publish/unpublish filecredit item ID "' . $intId . '"', __METHOD__, TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
         // Trigger the save_callback
-        if (is_array($GLOBALS['TL_DCA']['tl_filecredit_page']['fields']['published']['save_callback'])) {
-            foreach ($GLOBALS['TL_DCA']['tl_filecredit_page']['fields']['published']['save_callback'] as $callback) {
-                if (is_array($callback)) {
+        if (is_array($GLOBALS['TL_DCA']['tl_filecredit_page']['fields']['published']['save_callback']))
+        {
+            foreach ($GLOBALS['TL_DCA']['tl_filecredit_page']['fields']['published']['save_callback'] as $callback)
+            {
+                if (is_array($callback))
+                {
                     $this->import($callback[0]);
                     $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, ($dc ?: $this));
-                } elseif (is_callable($callback)) {
+                }
+                elseif (is_callable($callback))
+                {
                     $blnVisible = $callback($blnVisible, ($dc ?: $this));
                 }
             }
@@ -239,14 +247,15 @@ class tl_filecredit_page extends \Backend
     {
         $url = $arrRow['url'];
 
-        if ($url == '' && ($objTarget = \PageModel::findByPk($arrRow['page'])) !== null) {
+        if ($url == '' && ($objTarget = \PageModel::findByPk($arrRow['page'])) !== null)
+        {
             $url = \Controller::generateFrontendUrl($objTarget->row());
         }
 
         return '<div class="tl_content_left">' . $url . ' <span style="color:#b3b3b3;padding-left:3px">[' . Date::parse(
-                Config::get('datimFormat'),
-                $arrRow['date']
-            ) . ']</span></div>';
+            Config::get('datimFormat'),
+            $arrRow['date']
+        ) . ']</span></div>';
     }
 
 
@@ -254,20 +263,26 @@ class tl_filecredit_page extends \Backend
     {
         $objCredit = HeimrichHannot\FileCredit\FileCreditModel::findByPk($dc->id);
 
-        if ($objCredit == null) {
+        if ($objCredit == null)
+        {
             return $arrRow;
         }
 
         $objModel = \FilesModel::findByUuid($objCredit->uuid);
 
-        if ($objModel == null) {
+        if ($objModel == null)
+        {
             return $arrRow;
         }
 
-        if ($objModel !== null) {
-            if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes')))) {
+        if ($objModel !== null)
+        {
+            if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes'))))
+            {
                 $preview = \Image::getHtml(\Image::get($objModel->path, 64, 64, 'crop'));
-            } else {
+            }
+            else
+            {
                 $preview[0] = $objModel->name;
             }
 

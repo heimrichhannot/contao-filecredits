@@ -10,9 +10,6 @@
 
 namespace HeimrichHannot\FileCredit;
 
-
-use HeimrichHannot\Haste\Cache\FileCache;
-
 class Automator extends \System
 {
 
@@ -28,10 +25,6 @@ class Automator extends \System
         // Truncate the tables
         $objDatabase->execute("DELETE FROM tl_filecredit WHERE author = 0");
         $objDatabase->execute("DELETE FROM tl_filecredit_page WHERE id IN(" . implode(',', $ids) . ")");
-
-        // clear file cache
-        $cache = FileCache::getInstance();
-        $cache->deleteItemsByTag('fcp');
 
         // Add a log entry
         \System::log('Purged the filecredit tables, except manual created credits.', __METHOD__, TL_CRON);

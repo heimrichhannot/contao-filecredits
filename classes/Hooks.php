@@ -11,11 +11,13 @@
 
 namespace HeimrichHannot\FileCredit;
 
+use HeimrichHannot\Request\Request;
+
 class Hooks extends \Controller
 {
     public function executeResizeHook($objImage)
     {
-        if (TL_MODE == 'BE') {
+        if (TL_MODE == 'BE' || !Request::hasGet(FileCredit::REQUEST_INDEX_PARAM)) {
             return false;
         } // do not return a string to not interrupt Image::executeResize
 

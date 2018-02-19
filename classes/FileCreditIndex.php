@@ -12,8 +12,6 @@
 namespace HeimrichHannot\FileCredit;
 
 
-use HeimrichHannot\Haste\Cache\FileCache;
-
 class FileCreditIndex extends \Controller
 {
 
@@ -26,9 +24,11 @@ class FileCreditIndex extends \Controller
             // Index protected pages if enabled
             if ((!FE_USER_LOGGED_IN && !$objPage->protected)) {
                 // Do not index the page if certain parameters are set
-                foreach (array_keys($_GET) as $key) {
-                    if (in_array($key, $GLOBALS['TL_NOINDEX_KEYS']) || strncmp($key, 'page_', 5) === 0) {
-                        return false;
+                if (!empty($_GET)) {
+                    foreach (array_keys($_GET) as $key) {
+                        if (in_array($key, $GLOBALS['TL_NOINDEX_KEYS']) || strncmp($key, 'page_', 5) === 0) {
+                            return false;
+                        }
                     }
                 }
 
@@ -152,26 +152,6 @@ class FileCreditIndex extends \Controller
 
     public static function indexFile(\Contao\Image $objImage)
     {
-        /**
-         * @var $objPage \PageModel
-         */
-        global $objPage;
-
-        $imagePaths = [];
-        $cache      = FileCache::getInstance();
-        $cacheItem  = $cache->getItem('fcp_' . md5(standardize(\StringUtil::restoreBasicEntities($objPage->getAbsoluteUrl()))));
-
-        // in backend when synchronizing credits, cache input parameter = 0
-        if ($cacheItem->get() !== null) {
-
-            $imagePaths = deserialize($cacheItem->get(), true);
-
-            // skip if image path listed in cache for current page
-            if (in_array($objImage->getOriginalPath(), $imagePaths)) {
-                return false;
-            }
-        }
-
         $objFile = \FilesModel::findByPath($objImage->getOriginalPath());
 
         if ($objFile instanceof \Model\Collection) {
@@ -182,7 +162,6 @@ class FileCreditIndex extends \Controller
             return false;
         }
 
-
         if (!static::doIndex()) {
             return false;
         }
@@ -190,14 +169,6 @@ class FileCreditIndex extends \Controller
         if (!static::addFile($objFile)) {
             return false;
         }
-
-        $imagePaths[] = $objImage->getOriginalPath();
-
-        $cacheItem->set($imagePaths);
-        $cacheItem->addTag('fcp');
-
-        // add image to cache
-        $cache->save($cacheItem);
 
         return true;
     }

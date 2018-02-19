@@ -8,12 +8,19 @@ Contao module that adds credit support for images and files.
 composer require heimrichhannot/contao-filecredits
 ```
 
-### Install cron job (contao 4)
+### Disable command scheduler (poor-mans-cron) 
+
+For performance reasons, we insist on disabling the "Command-Scheduler" (enable `tl_settings.disableCron`) and run the cron jobs by a dedicated cronjob within your servers crontab.
+
+- Contao 4: `* * * * * wget -O /dev/null -q https://[DOMAIN-NAME]/_contao/cron --no-check-certificate`  
+- Contao 3: `* * * * * wget -O /dev/null -q https://[DOMAIN-NAME]/system/cron/cron.php --no-check-certificate`
+
+### Use custom cron job (contao 4)
 ```
 0 3 * * * /path/to/contao/vendor/heimrichhannot/contao-filecredits/bin/indexer # every day at 03:00 
 ```
 
-### Install cron job (contao 3)
+### Use custom cron job (contao 3)
 ```
 0 3 * * * /path/to/contao/composer/vendor/heimrichhannot/contao-filecredits/bin/indexer # every day at 03:00 
 ```

@@ -58,3 +58,7 @@ $GLOBALS['TL_HOOKS']['replaceInsertTags'][] = ['HeimrichHannot\FileCredit\Hooks'
 $GLOBALS['TL_MODELS']['tl_filecredit']      = 'HeimrichHannot\FileCredit\FileCreditModel';
 $GLOBALS['TL_MODELS']['tl_filecredit_page'] = 'HeimrichHannot\FileCredit\FileCreditPageModel';
 
+/**
+ * Crons
+ */
+$GLOBALS['TL_CRON']['daily']['huh.filecredits.poormanscron'] = ['HeimrichHannot\FileCredit\PoorMansCron', 'daily'];

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.0.1] - 2018-02-19
+
+### Changed
+- removed `tl_settings.fileCreditsDisablePoorMansCron` already implemented by contao itself (`tl_settings.disableCron`)
+
 ## [3.0.0] - 2018-02-19
 
 ### Changed

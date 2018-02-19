@@ -45,10 +45,6 @@ class PoorMansCron
      */
     private function indexCredits($interval)
     {
-        if(Config::get('fileCreditsDisablePoorMansCron')){
-            return;
-        }
-
         $manager = new IndexManager();
         $manager->run();
     }

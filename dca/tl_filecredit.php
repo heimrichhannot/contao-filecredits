@@ -95,7 +95,7 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
     // Palettes
     'palettes'    => [
         '__selector__' => ['published'],
-        'default'      => '{file_legend},uuid,copyright;{publish_legend},published',
+        'default'      => '{file_legend},uuid,copyright,author;{publish_legend},published',
     ],
     // Subpalettes
     'subpalettes' => [
@@ -109,6 +109,20 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
         'tstamp'    => [
             'label' => &$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'],
             'sql'   => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'author'    => [
+            'label'      => &$GLOBALS['TL_LANG']['tl_filecredit']['author'],
+            'default'    => BackendUser::getInstance()->id ?: 0,
+            'exclude'    => true,
+            'search'     => true,
+            'filter'     => true,
+            'sorting'    => true,
+            'flag'       => 11,
+            'inputType'  => 'select',
+            'foreignKey' => 'tl_user.name',
+            'eval'       => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
+            'sql'        => "int(10) unsigned NOT NULL default '0'",
+            'relation'   => ['type' => 'hasOne', 'load' => 'eager']
         ],
         'uuid'      => [
             'label'      => &$GLOBALS['TL_LANG']['tl_filecredit']['uuid'],

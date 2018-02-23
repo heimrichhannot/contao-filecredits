@@ -440,12 +440,13 @@ class FileCredit extends \Controller
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
             } else {
                 $rootPage = PageModel::findByPk($objPage->rootId);
-
-                if ('' === $rootPage->domain) {
+                $rootDomain = $rootPage->domain ?: \Environment::get('host');
+                if ('' === $rootDomain) {
                     System::log(sprintf('Filecredit Indexer: You must declare a domain on the root page of page with id %s in order to index file credits.', $objPage->id), __METHOD__, TL_ERROR);
+                    continue;
                 }
 
-                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $rootPage->domain . '/';
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $rootDomain . '/';
             }
 
             // Set domain

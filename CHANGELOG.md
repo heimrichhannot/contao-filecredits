@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.0.3] - 2018-02-23
+
+### Fixed
+- skip pages correctly if url is no absolute url, try to detect host in addition from `Contao\Environment::get('host')`
+
 ## [3.0.2] - 2018-02-19
 
 ### Fixed

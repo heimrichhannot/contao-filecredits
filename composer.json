@@ -27,7 +27,8 @@
     "contao-community-alliance/composer-plugin": "~2.4 || ~3.0",
     "heimrichhannot/contao-haste_plus": "^1.6.85",
     "heimrichhannot/contao-tagsinput": "~2.0",
-    "guzzlehttp/guzzle": "~5.3.1|~6.0"
+    "guzzlehttp/guzzle": "~5.3.1|~6.0",
+    "heimrichhannot/contao-request": "^1.2"
   },
   "autoload": {
     "classmap": [
@@ -42,3 +43,4 @@
     }
   }
 }
+

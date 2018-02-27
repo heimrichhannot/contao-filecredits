@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.0.4] - 2018-02-27
+
+### Fixed
+- missing `heimrichhannot/contao-request` dependency
+
 ## [3.0.3] - 2018-02-23
 
 ### Fixed

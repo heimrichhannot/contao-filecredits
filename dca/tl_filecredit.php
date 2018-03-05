@@ -31,16 +31,14 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
     // List
     'list'        => [
         'sorting'           => [
-            'mode'        => 1,
-            'flag'        => 1,
-            'panelLayout' => 'filter;search,limit',
-            'fields'      => ['uuid'],
+            'mode'            => 1,
+            'panelLayout'     => 'filter;search,limit',
+            'fields'          => ['tstamp'],
         ],
         'label'             => [
             'fields'         => ['uuid'],
             'format'         => '%s',
-            'label_callback' => ['tl_filecredit', 'listCredits'],
-            'group_callback' => ['tl_filecredit', 'groupCredits'],
+            'label_callback' => ['tl_filecredit', 'listCredits']
         ],
         'global_operations' => [
             'sync' => [
@@ -77,7 +75,7 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
                 'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
-                                . '\'))return false;Backend.getScrollOffset()"',
+                    . '\'))return false;Backend.getScrollOffset()"',
             ],
             'toggle'     => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_filecredit']['toggle'],
@@ -108,6 +106,7 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
         ],
         'tstamp'    => [
             'label' => &$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'],
+            'flag'  => 5,
             'sql'   => "int(10) unsigned NOT NULL default '0'",
         ],
         'author'    => [
@@ -117,12 +116,11 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
             'search'     => true,
             'filter'     => true,
             'sorting'    => true,
-            'flag'       => 11,
             'inputType'  => 'select',
             'foreignKey' => 'tl_user.name',
             'eval'       => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
             'sql'        => "int(10) unsigned NOT NULL default '0'",
-            'relation'   => ['type' => 'hasOne', 'load' => 'eager']
+            'relation'   => ['type' => 'hasOne', 'load' => 'lazy']
         ],
         'uuid'      => [
             'label'      => &$GLOBALS['TL_LANG']['tl_filecredit']['uuid'],
@@ -133,15 +131,17 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
             'eval'       => ['filesOnly' => true, 'fieldType' => 'radio', 'mandatory' => true, 'doNotCopy' => true],
         ],
         'copyright' => [
-            'label'         => $GLOBALS['TL_LANG']['tl_filecredit']['copyright'],
-            'inputType'     => 'text',
-            'load_callback' => [
+            'label'            => $GLOBALS['TL_LANG']['tl_filecredit']['copyright'],
+            'inputType'        => 'tagsinput',
+            'options_callback' => ['tl_filecredit', 'getCreditOptions'],
+            'eval'             => ['maxlength' => 255, 'decodeEntities' => true, 'tl_class' => 'long clr', 'freeInput' => true, 'multiple' => true, 'doNotSaveEmpty' => true],
+            'reference'        => &$GLOBALS['TL_LANG']['tl_files'],
+            'load_callback'    => [
                 ['tl_filecredit', 'getCopyright'],
             ],
-            'wizard'        => [
-                ['tl_filecredit', 'editCopyright'],
+            'save_callback'    => [
+                ['tl_filecredit', 'setCopyRight'],
             ],
-            'eval'          => ['readonly' => true],
         ],
         'checksum'  => [
             'sql' => "varchar(32) NOT NULL default ''",
@@ -150,7 +150,6 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
             'label'     => &$GLOBALS['TL_LANG']['tl_filecredit']['published'],
             'exclude'   => true,
             'filter'    => true,
-            'flag'      => 1,
             'inputType' => 'checkbox',
             'eval'      => ['submitOnChange' => true, 'doNotCopy' => true],
             'sql'       => "char(1) NOT NULL default ''",
@@ -189,17 +188,14 @@ class tl_filecredit extends \Backend
      */
     public function checkPermission()
     {
-        if ($this->User->isAdmin)
-        {
+        if ($this->User->isAdmin) {
             return;
         }
 
         // Check the additional operation permissions
-        switch (Input::get('key'))
-        {
+        switch (Input::get('key')) {
             case 'sync':
-                if (!$this->User->hasAccess('sync', 'filecredits'))
-                {
+                if (!$this->User->hasAccess('sync', 'filecredits')) {
                     $this->log('Not enough permissions to sync filecredits', __METHOD__, TL_ERROR);
                     $this->redirect('contao/main.php?act=error');
                 }
@@ -211,7 +207,7 @@ class tl_filecredit extends \Backend
     /**
      * Return the "toggle visibility" button
      *
-     * @param array  $row
+     * @param array $row
      * @param string $href
      * @param string $label
      * @param string $title
@@ -222,35 +218,32 @@ class tl_filecredit extends \Backend
      */
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        if (strlen(Input::get('tid')))
-        {
+        if (strlen(Input::get('tid'))) {
             $this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
         // Check permissions AFTER checking the tid, so hacking attempts are logged
-        if (!$this->User->hasAccess('tl_filecredit::published', 'alexf'))
-        {
+        if (!$this->User->hasAccess('tl_filecredit::published', 'alexf')) {
             return '';
         }
 
         $href .= '&amp;tid=' . $row['id'] . '&amp;state=' . ($row['published'] ? '' : 1);
 
-        if (!$row['published'])
-        {
+        if (!$row['published']) {
             $icon = 'invisible.gif';
         }
 
         return '<a href="' . $this->addToUrl($href) . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label)
-               . '</a> ';
+            . '</a> ';
     }
 
 
     /**
      * Disable/enable a user group
      *
-     * @param integer       $intId
-     * @param boolean       $blnVisible
+     * @param integer $intId
+     * @param boolean $blnVisible
      * @param DataContainer $dc
      */
     public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null)
@@ -260,24 +253,18 @@ class tl_filecredit extends \Backend
         Input::setGet('act', 'toggle');
 
         // Check permissions to publish
-        if (!$this->User->hasAccess('tl_filecredit::published', 'alexf'))
-        {
+        if (!$this->User->hasAccess('tl_filecredit::published', 'alexf')) {
             $this->log('Not enough permissions to publish/unpublish filecredit item ID "' . $intId . '"', __METHOD__, TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
         // Trigger the save_callback
-        if (is_array($GLOBALS['TL_DCA']['tl_filecredit']['fields']['published']['save_callback']))
-        {
-            foreach ($GLOBALS['TL_DCA']['tl_filecredit']['fields']['published']['save_callback'] as $callback)
-            {
-                if (is_array($callback))
-                {
+        if (is_array($GLOBALS['TL_DCA']['tl_filecredit']['fields']['published']['save_callback'])) {
+            foreach ($GLOBALS['TL_DCA']['tl_filecredit']['fields']['published']['save_callback'] as $callback) {
+                if (is_array($callback)) {
                     $this->import($callback[0]);
                     $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, ($dc ?: $this));
-                }
-                elseif (is_callable($callback))
-                {
+                } elseif (is_callable($callback)) {
                     $blnVisible = $callback($blnVisible, ($dc ?: $this));
                 }
             }
@@ -285,8 +272,8 @@ class tl_filecredit extends \Backend
 
         // Update the database
         $this->Database->prepare("UPDATE tl_filecredit SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?")->execute(
-                $intId
-            );
+            $intId
+        );
 
     }
 
@@ -294,8 +281,7 @@ class tl_filecredit extends \Backend
     {
         $objModel = \FilesModel::findByUuid($arrRow['uuid']);
 
-        if ($objModel === null)
-        {
+        if ($objModel === null) {
             return $group;
         }
 
@@ -307,25 +293,18 @@ class tl_filecredit extends \Backend
     {
         $objModel = \FilesModel::findByUuid($arrRow['uuid']);
 
-        if ($objModel === null)
-        {
+        if ($objModel === null) {
             return $strLabel;
         }
 
-        if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes'))))
-        {
+        if (in_array($objModel->extension, trimsplit(',', \Config::get('validImageTypes')))) {
             $args[0] = \Image::getHtml(\Image::get($objModel->path, 64, 64, 'crop'));
-        }
-        else
-        {
+        } else {
             $objFile = new \File($objModel->path, true);
 
-            if ($objFile->icon)
-            {
+            if ($objFile->icon) {
                 $args[0] = \Image::getHtml(TL_ASSETS_URL . 'assets/contao/images/' . $objFile->icon);
-            }
-            else
-            {
+            } else {
                 $args[0] = '';
             }
         }
@@ -336,23 +315,60 @@ class tl_filecredit extends \Backend
     }
 
 
-    public function getCopyright($varValue, DataContainer $dc)
+    public function setCopyRight($varValue, DataContainer $dc)
     {
-        if (!$dc->activeRecord)
-        {
+        if (!$dc->activeRecord) {
             return '';
         }
 
         $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
 
-        if ($objModel === null)
-        {
+        if ($objModel === null) {
             return '';
         }
 
-        return \HeimrichHannot\FileCredit\Backend\FileCredit::parseCopyright($objModel->copyright);
+        $objVersions = new Versions('tl_files', $objModel->id);
+        $objVersions->initialize();
+
+        $objModel->copyright = $varValue;
+        $objModel->save();
+
+        $objVersions->create();
+
+        return '';
     }
 
+    public function getCopyright($varValue, DataContainer $dc)
+    {
+        if (!$dc->activeRecord) {
+            return '';
+        }
+
+        $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
+
+        if ($objModel === null) {
+            return '';
+        }
+
+        return $objModel->copyright;
+    }
+
+    public function getCreditOptions($dc)
+    {
+        $arrOptions = [];
+
+        $objFileCredits = \HeimrichHannot\FileCredit\FilesModel::findWithCopyright();
+
+        if ($objFileCredits === null) {
+            return $arrOptions;
+        }
+
+        while ($objFileCredits->next()) {
+            $arrOptions = array_merge($arrOptions, deserialize($objFileCredits->copyright, true));
+        }
+
+        return $arrOptions;
+    }
 
     /**
      * Return the edit copyright wizard
@@ -363,27 +379,25 @@ class tl_filecredit extends \Backend
      */
     public function editCopyright(DataContainer $dc)
     {
-        if (!$dc->activeRecord)
-        {
+        if (!$dc->activeRecord) {
             return '';
         }
 
         $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
 
-        if ($objModel === null)
-        {
+        if ($objModel === null) {
             return '';
         }
 
         return (!$objModel->path)
             ? ''
             : ' <a href="contao/main.php?do=files&amp;amp;act=edit&amp;id=' . $objModel->path . '&amp;popup=1&amp;nb=1&amp;rt=' . REQUEST_TOKEN
-              . '" title="' . sprintf(
-                  specialchars($GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1]),
-                  $dc->value
-              ) . '" style="padding-left:3px" onclick="Backend.openModalIframe({\'width\':768,\'title\':\'' . specialchars(
-                  str_replace("'", "\\'", sprintf($GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1], $dc->value))
-              ) . '\',\'url\':this.href});return false">' . Image::getHtml(
+            . '" title="' . sprintf(
+                specialchars($GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1]),
+                $dc->value
+            ) . '" style="padding-left:3px" onclick="Backend.openModalIframe({\'width\':768,\'title\':\'' . specialchars(
+                str_replace("'", "\\'", sprintf($GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1], $dc->value))
+            ) . '\',\'url\':this.href});return false">' . Image::getHtml(
                 'alias.gif',
                 $GLOBALS['TL_LANG']['tl_filecredit']['editCopyright'][1][0],
                 'style="vertical-align:top"'
@@ -404,7 +418,7 @@ class tl_filecredit extends \Backend
     public function syncCredits($href, $label, $title, $class, $attributes)
     {
         return $this->User->hasAccess('sync', 'filecredits') ? '<a href="' . $this->addToUrl($href) . '" title="' . specialchars($title) . '" class="'
-                                                               . $class . '"' . $attributes . '>' . $label . '</a> ' : '';
+            . $class . '"' . $attributes . '>' . $label . '</a> ' : '';
     }
 }
 

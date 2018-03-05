@@ -65,15 +65,7 @@ class FileCredit extends \Backend implements \executable
                 $this->redirect('contao/confirm.php');
             }
 
-            $arrPages = static::findFileCreditPages();
-
-            // HOOK: take additional pages (news, events…)
-            if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
-                foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
-                    $this->import($callback[0]);
-                    $arrPages = $this->{$callback[0]}->{$callback[1]}($arrPages);
-                }
-            }
+            $arrPages = \HeimrichHannot\FileCredit\FileCredit::findAllFileCreditPages();
 
             $blnTruncateTable = true;
 

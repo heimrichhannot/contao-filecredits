@@ -16,3 +16,8 @@
 #tl_filecredit_sync{
 	padding-top: 21px;
 }
+
+#tl_filecredit_sync .sub_headline,
+#tl_filecredit_sync .sub_headline_index{
+	padding: 7px 0;
+}

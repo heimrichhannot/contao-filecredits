@@ -11,9 +11,6 @@
 
 namespace HeimrichHannot\FileCredit;
 
-
-use HeimrichHannot\Haste\Util\Files;
-
 class FileCreditModel extends \Model
 {
     protected static $strTable = 'tl_filecredit';

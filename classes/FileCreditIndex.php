@@ -12,6 +12,10 @@
 namespace HeimrichHannot\FileCredit;
 
 
+use Contao\Database;
+use Contao\Model\Collection;
+use Contao\PageModel;
+
 class FileCreditIndex extends \Controller
 {
 
@@ -39,7 +43,7 @@ class FileCreditIndex extends \Controller
         return false;
     }
 
-    public static function addFile($objFile)
+    public static function addFile($objFile, int $time)
     {
         $checksum = md5(preg_replace('/ +/', ' ', strip_tags($objFile->copyright)));
 
@@ -47,12 +51,12 @@ class FileCreditIndex extends \Controller
 
         // do not index again if copyright did not change, but add the current page
         if ($objModel !== null && $checksum == $objModel->checksum) {
-            static::addCurrentPage($objModel);
+            static::addCurrentPage($objModel, $time);
             return true;
         }
 
         $arrSet = [
-            'tstamp'    => time(),
+            'tstamp'    => (int)$time,
             'uuid'      => $objFile->uuid,
             'checksum'  => $checksum,
             'published' => 1,
@@ -75,7 +79,7 @@ class FileCreditIndex extends \Controller
             $objModel->setRow($arrSet);
             $objModel->save();
 
-            static::addCurrentPage($objModel);
+            static::addCurrentPage($objModel, $time);
 
             return true;
         }
@@ -86,7 +90,7 @@ class FileCreditIndex extends \Controller
             $objModel->setRow($arrSet);
             $objModel->save();
 
-            static::addCurrentPage($objModel);
+            static::addCurrentPage($objModel, $time);
 
             return true;
         }
@@ -94,20 +98,22 @@ class FileCreditIndex extends \Controller
         return false;
     }
 
-    protected static function addCurrentPage(FileCreditModel $objCredit)
+    protected static function addCurrentPage(FileCreditModel $objCredit, int $time)
     {
         if (!$objCredit->id) {
             return false;
         }
 
+        /** @var $objPage PageModel */
         global $objPage;
 
         $strRequestRaw = preg_replace('/\\?.*/', '', \Environment::get('request')); // strip get parameter from url
-        $strRequest    = rtrim($strRequestRaw, "/");
-        $strAlias      = \Controller::generateFrontendUrl($objPage->row());
+        $strRequestRaw = str_replace(['/app_dev.php', ':0/'], ['/', '/'], $strRequestRaw);
+        $path          = rtrim($strRequestRaw, "/");
+        $strAlias      = $objPage->getFrontendUrl();
 
         // only accept pages or auto_item pages
-        if (!Validator::isRequestAlias($strRequest, $strAlias)) {
+        if (!Validator::isRequestAlias($path, $strAlias)) {
             // cleanup pages that no longer exist
             $objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequestRaw);
 
@@ -120,7 +126,8 @@ class FileCreditIndex extends \Controller
             return false;
         }
 
-        $objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequest);
+        $strRequest = trim(\Environment::get('base') . $path);
+        $objModel   = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequest);
 
         // do not index page again
         if ($objModel !== null) {
@@ -128,9 +135,9 @@ class FileCreditIndex extends \Controller
         }
 
         $arrSet = [
-            'pid'       => $objCredit->id,
-            'tstamp'    => time(),
-            'page'      => $objPage->id,
+            'pid'       => (int)$objCredit->id,
+            'tstamp'    => (int)$time,
+            'page'      => (int)$objPage->id,
             'url'       => $strRequest,
             'protected' => ($objPage->protected ? '1' : ''),
             'groups'    => $objPage->groups,
@@ -140,19 +147,25 @@ class FileCreditIndex extends \Controller
             'stop'      => '',
         ];
 
-
-        // create: add new page for the credit
-        $objModel = new FileCreditPageModel();
-        $objModel->setRow($arrSet);
-        $objModel->save();
+        // create: add new page for the credit, on duplicate key ignore
+        Database::getInstance()->prepare('INSERT IGNORE INTO tl_filecredit_page %s')
+            ->set($arrSet)
+            ->execute();
 
         return true;
     }
 
 
-    public static function indexFile(\Contao\Image $objImage)
+    /**
+     * @param \Contao\Model\Collection|FilesModel[]|FilesModel|null $objFile
+     * @param int $time Index timestamp
+     * @return bool
+     */
+    public static function indexFile($objFile = null, int $time)
     {
-        $objFile = \FilesModel::findByPath($objImage->getOriginalPath());
+        if (null === $objFile) {
+            return false;
+        }
 
         if ($objFile instanceof \Model\Collection) {
             return static::indexFiles($objFile);
@@ -166,7 +179,7 @@ class FileCreditIndex extends \Controller
             return false;
         }
 
-        if (!static::addFile($objFile)) {
+        if (!static::addFile($objFile, $time)) {
             return false;
         }
 

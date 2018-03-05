@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2018-03-05
+
+### Fixed
+- index files without domain
+- contao 4: `app_dev.php` removed from url
+- always clean up images without an author before reindex credits again
+- remove credits without related pages 
+- do not index pages that return an 404, 500 or redirect status code, only index status code 200 pages
+- index `/files` images that were not resized
+
+### Changed
+- removed `grouping` for credits in back end list view 
+
+### Added
+- index background-images inside `/files` directory
+
 ## [3.0.4] - 2018-02-27
 
 ### Fixed

@@ -439,9 +439,10 @@ class FileCredit extends \Controller
             if ($objPage->domain != '') {
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
             } else {
-                $rootPage = PageModel::findByPk($objPage->rootId);
+                $rootPage   = PageModel::findByPk($objPage->rootId);
                 $rootDomain = $rootPage->domain ?: \Environment::get('host');
-                if ('' === $rootDomain) {
+
+                if (!preg_match('/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/', $rootDomain)) {
                     System::log(sprintf('Filecredit Indexer: You must declare a domain on the root page of page with id %s in order to index file credits.', $objPage->id), __METHOD__, TL_ERROR);
                     continue;
                 }
@@ -494,17 +495,23 @@ class FileCredit extends \Controller
             }
         }
 
-        $arrPages = array_map(function ($url) {
+        $time = time();
+
+        $arrPages = array_map(function ($url) use ($time) {
             $url = str_replace(['/app_dev.php', ':0/'], ['', '/'], $url);
 
-            if (false === strpos($url, static::REQUEST_INDEX_PARAM)) {
-                return $url . '?' . static::REQUEST_INDEX_PARAM . '=' . time();
+            // filter out non absolute urls
+            if (false === strpos($url, 'http')) {
+                return null;
             }
 
+            if (false === strpos($url, static::REQUEST_INDEX_PARAM)) {
+                return $url . '?' . static::REQUEST_INDEX_PARAM . '=' . $time;
+            }
             return $url;
         }, $arrPages);
 
-        $arrPages = array_unique($arrPages);
+        $arrPages = array_filter(array_unique($arrPages));
 
         return $arrPages;
     }

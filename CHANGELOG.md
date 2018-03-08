@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.1.1] - 2018-03-05
+
+### Fixed
+- SQL-Error under contao 3 on database update on `tl_filecredit_page` index `pid,page,url`
+
 ## [3.1.0] - 2018-03-05
 
 ### Fixed

@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_filecredit_page'] = [
         'sql'           => [
             'keys' => [
                 'id'           => 'primary',
-                'pid,page,url' => 'index,unique',
+                'pid,page,url' => version_compare(VERSION, '4.0', '<') ? 'unique' : 'index,unique',
             ],
         ],
     ],

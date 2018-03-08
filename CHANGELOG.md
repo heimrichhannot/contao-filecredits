@@ -1,7 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [3.1.1] - 2018-03-05
+## [3.1.2] - 2018-03-08
+
+### Fixed
+- removed unused `fcp` cache
+
+## [3.1.1] - 2018-03-08
 
 ### Fixed
 - SQL-Error under contao 3 on database update on `tl_filecredit_page` index `pid,page,url`

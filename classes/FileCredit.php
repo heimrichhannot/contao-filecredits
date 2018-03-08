@@ -11,8 +11,6 @@
 
 namespace HeimrichHannot\FileCredit;
 
-
-use Contao\Controller;
 use Contao\PageModel;
 use Contao\System;
 

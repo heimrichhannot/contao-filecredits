@@ -9,8 +9,6 @@
 namespace HeimrichHannot\FileCredit;
 
 
-use Contao\Config;
-
 class PoorMansCron
 {
     public function minutely()

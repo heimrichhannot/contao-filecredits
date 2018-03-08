@@ -13,7 +13,6 @@ namespace HeimrichHannot\FileCredit;
 
 
 use Contao\Database;
-use Contao\Model\Collection;
 use Contao\PageModel;
 
 class FileCreditIndex extends \Controller

@@ -12,7 +12,6 @@ namespace HeimrichHannot\FileCredit\Backend;
 
 
 use HeimrichHannot\FileCredit\Automator;
-use HeimrichHannot\Haste\Cache\FileCache;
 
 class FileCredit extends \Backend implements \executable
 {
@@ -122,16 +121,11 @@ class FileCredit extends \Backend implements \executable
             $strBuffer = '';
             $rand      = rand();
 
-            $cache = FileCache::getInstance();
-
             // Display the pages
             for ($i = 0, $c = count($arrPages); $i < $c; $i++) {
                 if (!\Validator::isUrl($arrPages[$i])) {
                     continue;
                 }
-
-                // clear page cache
-                $cache->deleteItem('fcp_' . md5(standardize(\StringUtil::restoreBasicEntities($arrPages[$i]))));
 
                 $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100)
                     . '</span><br>';

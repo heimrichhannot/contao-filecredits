@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.1.3] - 2018-03-08
+
+### Fixed
+- empty copyright check before adding credits (array check)
+- index credit on pages with alias `index` 
+
 ## [3.1.2] - 2018-03-08
 
 ### Fixed

@@ -63,9 +63,11 @@ class FileCreditIndex extends \Controller
             'stop'      => '',
         ];
 
+        $copyright = array_filter(deserialize($objFile->copyright, true));
+
         if ($objModel !== null) {
             // delete: remove credit if copyright is empty
-            if ($objFile->copyright == '') {
+            if (empty($copyright)) {
                 // remove all pages for the credit before
                 FileCreditPageModel::deleteByPid($objModel->id);
 
@@ -84,7 +86,7 @@ class FileCreditIndex extends \Controller
         }
 
         // create: add new credit
-        if ($objFile->copyright != '') {
+        if (!empty($copyright)) {
             $objModel = new FileCreditModel();
             $objModel->setRow($arrSet);
             $objModel->save();
@@ -112,7 +114,7 @@ class FileCreditIndex extends \Controller
         $strAlias      = $objPage->getFrontendUrl();
 
         // only accept pages or auto_item pages
-        if (!Validator::isRequestAlias($path, $strAlias)) {
+        if (!Validator::isRequestAlias($path, rtrim($strAlias, '/'))) {
             // cleanup pages that no longer exist
             $objModel = FileCreditPageModel::findByPidAndPageAndUrl($objCredit->id, $objPage->id, $strRequestRaw);
 

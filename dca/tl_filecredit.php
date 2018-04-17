@@ -133,14 +133,14 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
         'copyright' => [
             'label'            => $GLOBALS['TL_LANG']['tl_filecredit']['copyright'],
             'inputType'        => 'tagsinput',
-            'options_callback' => ['tl_filecredit', 'getCreditOptions'],
+            'options_callback' => ['HeimrichHannot\FileCredit\Backend\FileCredit', 'getFileCreditOptions'],
             'eval'             => ['maxlength' => 255, 'decodeEntities' => true, 'tl_class' => 'long clr', 'freeInput' => true, 'multiple' => true, 'doNotSaveEmpty' => true],
             'reference'        => &$GLOBALS['TL_LANG']['tl_files'],
             'load_callback'    => [
-                ['tl_filecredit', 'getCopyright'],
+                ['HeimrichHannot\FileCredit\Backend\FileCredit', 'getCopyright'],
             ],
             'save_callback'    => [
-                ['tl_filecredit', 'setCopyRight'],
+                ['HeimrichHannot\FileCredit\Backend\FileCredit', 'setCopyright'],
             ],
         ],
         'checksum'  => [
@@ -312,62 +312,6 @@ class tl_filecredit extends \Backend
         $args[1] = \HeimrichHannot\FileCredit\Backend\FileCredit::parseCopyright($objModel->copyright);
 
         return $args;
-    }
-
-
-    public function setCopyRight($varValue, DataContainer $dc)
-    {
-        if (!$dc->activeRecord) {
-            return '';
-        }
-
-        $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
-
-        if ($objModel === null) {
-            return '';
-        }
-
-        $objVersions = new Versions('tl_files', $objModel->id);
-        $objVersions->initialize();
-
-        $objModel->copyright = $varValue;
-        $objModel->save();
-
-        $objVersions->create();
-
-        return '';
-    }
-
-    public function getCopyright($varValue, DataContainer $dc)
-    {
-        if (!$dc->activeRecord) {
-            return '';
-        }
-
-        $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
-
-        if ($objModel === null) {
-            return '';
-        }
-
-        return $objModel->copyright;
-    }
-
-    public function getCreditOptions($dc)
-    {
-        $arrOptions = [];
-
-        $objFileCredits = \HeimrichHannot\FileCredit\FilesModel::findWithCopyright();
-
-        if ($objFileCredits === null) {
-            return $arrOptions;
-        }
-
-        while ($objFileCredits->next()) {
-            $arrOptions = array_merge($arrOptions, deserialize($objFileCredits->copyright, true));
-        }
-
-        return $arrOptions;
     }
 
     /**

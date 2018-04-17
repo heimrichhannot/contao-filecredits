@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.1.4] - 2018-04-17
+
+### Fixed
+- refactoring
+
 ## [3.1.3] - 2018-03-08
 
 ### Fixed

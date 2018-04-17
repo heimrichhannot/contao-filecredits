@@ -11,11 +11,12 @@
 namespace HeimrichHannot\FileCredit\Backend;
 
 
+use Contao\DataContainer;
+use Contao\Versions;
 use HeimrichHannot\FileCredit\Automator;
 
 class FileCredit extends \Backend implements \executable
 {
-
     /**
      * Return true if the module is active
      *
@@ -24,6 +25,61 @@ class FileCredit extends \Backend implements \executable
     public function isActive()
     {
         return (\Config::get('enableSearch') && \Input::get('act') == 'index');
+    }
+
+    public function setCopyright($varValue, DataContainer $dc)
+    {
+        if (!$dc->activeRecord) {
+            return '';
+        }
+
+        $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
+
+        if ($objModel === null) {
+            return '';
+        }
+
+        $objVersions = new Versions('tl_files', $objModel->id);
+        $objVersions->initialize();
+
+        $objModel->copyright = $varValue;
+        $objModel->save();
+
+        $objVersions->create();
+
+        return '';
+    }
+
+    public function getCopyright($varValue, DataContainer $dc)
+    {
+        if (!$dc->activeRecord) {
+            return '';
+        }
+
+        $objModel = \FilesModel::findByUuid($dc->activeRecord->uuid);
+
+        if ($objModel === null) {
+            return '';
+        }
+
+        return $objModel->copyright;
+    }
+
+    public function getFileCreditOptions($dc)
+    {
+        $arrOptions = [];
+
+        $objFileCredits = \HeimrichHannot\FileCredit\FilesModel::findWithCopyright();
+
+        if ($objFileCredits === null) {
+            return $arrOptions;
+        }
+
+        while ($objFileCredits->next()) {
+            $arrOptions = array_merge($arrOptions, deserialize($objFileCredits->copyright, true));
+        }
+
+        return $arrOptions;
     }
 
     /**

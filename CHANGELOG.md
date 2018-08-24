@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.1.5] - 2018-08-24
+
+### Fixed
+- update author if you add file credit page manually
+
 ## [3.1.4] - 2018-04-17
 
 ### Fixed

@@ -16,14 +16,15 @@ $GLOBALS['TL_DCA']['tl_filecredit_page'] = [
 
     // Config
     'config'      => [
-        'dataContainer' => 'Table',
-        'ptable'        => 'tl_filecredit',
-        'sql'           => [
+        'dataContainer'     => 'Table',
+        'ptable'            => 'tl_filecredit',
+        'sql'               => [
             'keys' => [
                 'id'           => 'primary',
                 'pid,page,url' => version_compare(VERSION, '4.0', '<') ? 'unique' : 'index,unique',
             ],
         ],
+        'onsubmit_callback' => [[\HeimrichHannot\FileCredit\Backend\FileCredit::class, 'updateAuthor']],
     ],
     // List
     'list'        => [
@@ -63,8 +64,7 @@ $GLOBALS['TL_DCA']['tl_filecredit_page'] = [
                 'label'      => &$GLOBALS['TL_LANG']['tl_filecredit_page']['delete'],
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
-                    . '\'))return false;Backend.getScrollOffset()"',
+                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\'))return false;Backend.getScrollOffset()"',
             ],
             'toggle' => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_filecredit_page']['toggle'],
@@ -163,7 +163,7 @@ class tl_filecredit_page extends \Backend
     /**
      * Return the "toggle visibility" button
      *
-     * @param array $row
+     * @param array  $row
      * @param string $href
      * @param string $label
      * @param string $title
@@ -190,16 +190,15 @@ class tl_filecredit_page extends \Backend
             $icon = 'invisible.gif';
         }
 
-        return '<a href="' . $this->addToUrl($href) . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label)
-            . '</a> ';
+        return '<a href="' . $this->addToUrl($href) . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a> ';
     }
 
 
     /**
      * Disable/enable a user group
      *
-     * @param integer $intId
-     * @param boolean $blnVisible
+     * @param integer       $intId
+     * @param boolean       $blnVisible
      * @param DataContainer $dc
      */
     public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null)
@@ -227,8 +226,7 @@ class tl_filecredit_page extends \Backend
         }
 
         // Update the database
-        $this->Database->prepare("UPDATE tl_filecredit_page SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?")
-            ->execute($intId);
+        $this->Database->prepare("UPDATE tl_filecredit_page SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?")->execute($intId);
 
     }
 
@@ -240,10 +238,7 @@ class tl_filecredit_page extends \Backend
             $url = \Controller::generateFrontendUrl($objTarget->row());
         }
 
-        return '<div class="tl_content_left">' . urldecode($url) . ' <span style="color:#b3b3b3;padding-left:3px">[' . Date::parse(
-                Config::get('datimFormat'),
-                $arrRow['date']
-            ) . ']</span></div>';
+        return '<div class="tl_content_left">' . urldecode($url) . ' <span style="color:#b3b3b3;padding-left:3px">[' . Date::parse(Config::get('datimFormat'), $arrRow['date']) . ']</span></div>';
     }
 
 

@@ -11,11 +11,14 @@
 namespace HeimrichHannot\FileCredit\Backend;
 
 
+use Contao\Backend;
 use Contao\DataContainer;
 use Contao\Versions;
 use HeimrichHannot\FileCredit\Automator;
+use HeimrichHannot\FileCredit\FileCreditModel;
+use HeimrichHannot\FileCredit\FileCreditPageModel;
 
-class FileCredit extends \Backend implements \executable
+class FileCredit extends Backend implements \executable
 {
     /**
      * Return true if the module is active
@@ -156,14 +159,7 @@ class FileCredit extends \Backend implements \executable
             // Log in the front end user
             if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
                 // Insert a new session
-                $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")->execute(
-                    \Input::get('user'),
-                    $time,
-                    'FE_USER_AUTH',
-                    session_id(),
-                    \Environment::get('ip'),
-                    $strHash
-                );
+                $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")->execute(\Input::get('user'), $time, 'FE_USER_AUTH', session_id(), \Environment::get('ip'), $strHash);
 
                 // Set the cookie
                 $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, false, true);
@@ -183,8 +179,7 @@ class FileCredit extends \Backend implements \executable
                     continue;
                 }
 
-                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100)
-                    . '</span><br>';
+                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100) . '</span><br>';
                 unset($arrPages[$i]); // see #5681
             }
 
@@ -247,9 +242,9 @@ class FileCredit extends \Backend implements \executable
      * Get all pages for filecredit index and return them as array
      *
      * @param integer $pid
-     * @param string $domain
+     * @param string  $domain
      * @param boolean $blnIsSitemap
-     * @param string $strLanguage
+     * @param string  $strLanguage
      *
      * @return array
      */
@@ -259,10 +254,7 @@ class FileCredit extends \Backend implements \executable
         $objDatabase = \Database::getInstance();
 
         // Get published pages
-        $objPages = $objDatabase->prepare(
-            "SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60)
-            . "') AND published='1' ORDER BY sorting"
-        )->execute($pid);
+        $objPages = $objDatabase->prepare("SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' ORDER BY sorting")->execute($pid);
 
         if ($objPages->numRows < 1) {
             return [];
@@ -276,6 +268,10 @@ class FileCredit extends \Backend implements \executable
             $domain = '';
 
             $objPage = \PageModel::findWithDetails($objPages->id);
+
+            if ($objPage->noSearch) {
+                continue;
+            }
 
             if ($objPage->domain != '') {
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . TL_PATH . '/';
@@ -291,31 +287,14 @@ class FileCredit extends \Backend implements \executable
                 // Not protected
                 if ((!$objPage->protected || \Config::get('indexProtected'))) {
                     // Published
-                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time)
-                        && ($objPage->stop == ''
-                            || $objPage->stop > ($time + 60))
-                    ) {
+                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time) && ($objPage->stop == '' || $objPage->stop > ($time + 60))) {
                         $arrPages[] = $domain . str_replace($domain, '', static::generateFrontendUrl($objPage->row(), null, $strLanguage));
 
                         // Get articles with teaser
-                        $objArticle = $objDatabase->prepare(
-                            "SELECT * FROM tl_article WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60)
-                            . "') AND published='1' AND showTeaser='1' ORDER BY sorting"
-                        )->execute($objPage->id);
+                        $objArticle = $objDatabase->prepare("SELECT * FROM tl_article WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' AND showTeaser='1' ORDER BY sorting")->execute($objPage->id);
 
                         while ($objArticle->next()) {
-                            $arrPages[] = $domain . str_replace(
-                                    $domain,
-                                    '',
-                                    static::generateFrontendUrl(
-                                        $objPage->row(),
-                                        '/articles/' . (($objArticle->alias != ''
-                                            && !\Config::get(
-                                                'disableAlias'
-                                            )) ? $objArticle->alias : $objArticle->id),
-                                        $strLanguage
-                                    )
-                                );
+                            $arrPages[] = $domain . str_replace($domain, '', static::generateFrontendUrl($objPage->row(), '/articles/' . (($objArticle->alias != '' && !\Config::get('disableAlias')) ? $objArticle->alias : $objArticle->id), $strLanguage));
                         }
                     }
                 }
@@ -323,8 +302,7 @@ class FileCredit extends \Backend implements \executable
 
             // Get subpages
             if ((!$objPage->protected || \Config::get('indexProtected'))
-                && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false
-            ) {
+                && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false) {
                 $arrPages = array_merge($arrPages, $arrSubpages);
             }
         }
@@ -337,5 +315,30 @@ class FileCredit extends \Backend implements \executable
         $varValue = deserialize($varValue);
 
         return is_array($varValue) ? implode(', ', $varValue) : $varValue;
+    }
+
+    /**
+     * update the author of the fileCreditModel if you add a fileCreditPageModel manually
+     *
+     * @param $dca
+     */
+    public function updateAuthor($dca)
+    {
+        $fileCreditPageModel = FileCreditPageModel::findBy(['id'], [$dca->intId]);
+
+        if (null === $fileCreditPageModel) {
+            return;
+        }
+
+        $fileCreditModel = FileCreditModel::findBy(['id'], [$fileCreditPageModel->pid]);
+
+        if (null === $fileCreditModel) {
+            return;
+        }
+
+        $this->import('BackendUser', 'Member');
+
+        $fileCreditModel->author = $this->Member->id;
+        $fileCreditModel->save();
     }
 }

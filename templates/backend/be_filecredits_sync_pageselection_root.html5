@@ -1,0 +1,9 @@
+<div class="limitfilecreditpagesroot">
+    <?php foreach ($this->pages as $rootPage): ?>
+        <div id="ctrl_limitfilecreditpagesroot_<?= $rootPage['value']; ?>" class="tl_checkbox_single_container">
+            <input type="hidden" name="limitfilecreditpagesroot_<?= $rootPage['value']; ?>" value="">
+            <input type="checkbox" name="limitfilecreditpagesroot_<?= $rootPage['value']; ?>" id="opt_limitfilecreditpages_<?= $rootPage['value']; ?>" class="tl_checkbox" value="<?= $rootPage['value']; ?>" onclick="FileCredits.toggleFileCreditPages(this, 'sub_limitfilecreditpagesroot_<?= $rootPage['value']; ?>', 'limitfilecreditpagesroot')" onfocus="Backend.getScrollOffset()">
+            <label for="opt_limitfilecreditpagesroot_<?= $rootPage['value']; ?>"><?= $rootPage['label']; ?></label>
+        </div>
+    <?php endforeach; ?>
+</div>

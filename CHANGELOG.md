@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.2.0] - 2018-08-27
+
+### Changed
+- changed backend limit filecredit pages selection
+
 ## [3.1.5] - 2018-08-24
 
 ### Fixed

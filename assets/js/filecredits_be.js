@@ -6,7 +6,7 @@ var FileCredits = {
      * @param {string} id    The ID of the target element
      * @param {string} field The field name
      */
-    toggleFileCreditPages: function (el, id, field) {
+    toggleFileCreditPages: function(el, id, field) {
         el.blur();
         var item = $(id);
 
@@ -15,12 +15,26 @@ var FileCredits = {
                 el.value = 1;
                 el.checked = 'checked';
                 item.setStyle('display', 'block');
-                new Request.Contao({field:el}).get({'action':'toggleFileCreditPages', 'id':id, 'field':field, 'state':1, 'REQUEST_TOKEN':Contao.request_token});
+                new Request.Contao({field: el}).get({
+                    'action': 'toggleFileCreditPages',
+                    'id': id,
+                    'field': field,
+                    'state': 1,
+                    'value': el.value,
+                    'REQUEST_TOKEN': Contao.request_token,
+                });
             } else {
                 el.value = '';
                 el.checked = '';
                 item.setStyle('display', 'none');
-                new Request.Contao({field:el}).get({'action':'toggleFileCreditPages', 'id':id, 'field':field, 'state':0, 'REQUEST_TOKEN':Contao.request_token});
+                new Request.Contao({field: el}).get({
+                    'action': 'toggleFileCreditPages',
+                    'id': id,
+                    'field': field,
+                    'value': el.value,
+                    'state': 0,
+                    'REQUEST_TOKEN': Contao.request_token,
+                });
             }
             return;
         }
@@ -34,9 +48,9 @@ var FileCredits = {
                     'id': id,
                     'html': txt,
                     'styles': {
-                        'display': 'block'
-                    }
-                }).inject($(el).getParent('div').getParent('div'), 'after');
+                        'display': 'block',
+                    },
+                }).inject($(el).getParent('div', 'after'));
 
                 // Execute scripts after the DOM has been updated
                 if (json.javascript) {
@@ -45,13 +59,13 @@ var FileCredits = {
                     // JavaScript file and re-execude the code after it has been loaded
                     document.write = function(str) {
                         var src = '';
-                        str.replace(/<script src="([^"]+)"/i, function(all, match){
+                        str.replace(/<script src="([^"]+)"/i, function(all, match) {
                             src = match;
                         });
                         src && Asset.javascript(src, {
                             onLoad: function() {
                                 Browser.exec(json.javascript);
-                            }
+                            },
                         });
                     };
 
@@ -71,7 +85,15 @@ var FileCredits = {
                 // HOOK
                 window.fireEvent('subpalette'); // Backwards compatibility
                 window.fireEvent('ajax_change');
-            }
-        }).get({'action':'toggleFileCreditPages', 'id':id, 'field':field, 'load':1, 'state':1, 'REQUEST_TOKEN':Contao.request_token});
-    }
+            },
+        }).get({
+            'action': 'toggleFileCreditPages',
+            'id': id,
+            'field': field,
+            'load': 1,
+            'value': el.value,
+            'state': 1,
+            'REQUEST_TOKEN': Contao.request_token,
+        });
+    },
 };

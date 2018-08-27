@@ -13,6 +13,8 @@ namespace HeimrichHannot\FileCredit\Backend;
 
 use Contao\Backend;
 use Contao\DataContainer;
+use Contao\Input;
+use Contao\PageModel;
 use Contao\Versions;
 use HeimrichHannot\FileCredit\Automator;
 use HeimrichHannot\FileCredit\FileCreditModel;
@@ -116,26 +118,26 @@ class FileCredit extends Backend implements \executable
         }
 
         // Rebuild the index
-        if (\Input::get('act') == 'index') {
+        if (\Input::post('act') == 'index') {
             // Check the request token (see #4007)
-            if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt'))) {
+            if (!isset($_POST['REQUEST_TOKEN']) || !\RequestToken::validate(\Input::post('REQUEST_TOKEN'))) {
                 $this->Session->set('INVALID_TOKEN_URL', \Environment::get('request'));
                 $this->redirect('contao/confirm.php');
             }
 
-            $arrPages = \HeimrichHannot\FileCredit\FileCredit::findAllFileCreditPages();
-
             $blnTruncateTable = true;
 
-            if (\Input::get('limitfilecreditpages')) {
-                $arrSelectedPages = \Input::get('filecreditpages');
-
+            if (\Input::post('limitfilecreditpages')) {
+                $arrSelectedPages = \Input::post('filecreditpages');
+                $arrPages         = [];
                 if (is_array($arrSelectedPages) && !empty($arrSelectedPages)) {
-                    $arrPages         = array_keys(array_intersect(array_flip($arrPages), $arrSelectedPages));
+                    $arrPages = $arrSelectedPages;
+                    unset($arrSelectedPages);
                     $blnTruncateTable = false;
                 }
+            } else {
+                $arrPages = \HeimrichHannot\FileCredit\FileCredit::findAllFileCreditPages();
             }
-
             // Return if there are no pages
             if (empty($arrPages)) {
                 $_SESSION['REBUILD_FILECREDIT_ERROR'] = $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'];
@@ -219,22 +221,28 @@ class FileCredit extends Backend implements \executable
 
     protected function registerEvents()
     {
-        if (\Environment::get('isAjaxRequest') && \Input::get('action') == 'toggleFileCreditPages') {
-            if (\Input::get('state') == 1) {
-                $arrPages = static::findFileCreditPages();
+        if (\Environment::get('isAjaxRequest') && Input::get('action') == 'toggleFileCreditPages') {
+            if (Input::get('state') == 1 && 'limitfilecreditpages' === Input::get('field')) {
+                $arrPages = static::findRootFileCreditPages();
 
+                $objTemplate        = new \BackendTemplate('be_filecredits_sync_pageselection_root');
+                $objTemplate->pages = is_array($arrPages) ? $arrPages : [];
+                die($objTemplate->parse());
+
+            } elseif (1 == Input::get('state') && 'limitfilecreditpagesroot' === Input::get('field')) {
+                $arrPages = static::findFileCreditPages(Input::get('value'));
                 // HOOK: take additional pages
                 if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
                     foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
-                        $arrPages = \System::importStatic($callback[0])->{$callback[1]}($arrPages);
+                        $arrPages = \System::importStatic($callback[0])->{$callback[1]}($arrPages, Input::get('value'));
                     }
                 }
-            }
 
-            $objTemplate                 = new \BackendTemplate('be_filecredits_sync_pageselection_tree');
-            $objTemplate->pages          = is_array($arrPages) ? $arrPages : [];
-            $objTemplate->checkAllLegend = $GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'];
-            die($objTemplate->parse());
+                $objTemplate                 = new \BackendTemplate('be_filecredits_sync_pageselection_tree');
+                $objTemplate->pages          = is_array($arrPages) ? $arrPages : [];
+                $objTemplate->checkAllLegend = $GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'];
+                die($objTemplate->parse());
+            }
         }
     }
 
@@ -305,6 +313,53 @@ class FileCredit extends Backend implements \executable
                 && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false) {
                 $arrPages = array_merge($arrPages, $arrSubpages);
             }
+        }
+
+        return $arrPages;
+    }
+
+    /**
+     * Get all pages for filecredit index and return them as array
+     *
+     * @param integer $pid
+     * @param string  $domain
+     * @param boolean $blnIsSitemap
+     * @param string  $strLanguage
+     *
+     * @return array
+     */
+    public static function findRootFileCreditPages()
+    {
+        $time        = \Date::floorToMinute();
+        $objDatabase = \Database::getInstance();
+
+        // Get published pages
+        $objPages = $objDatabase->prepare("SELECT * FROM tl_page WHERE pid=0 AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' ORDER BY sorting")->execute();
+
+        if ($objPages->numRows < 1) {
+            return [];
+        }
+
+        $arrPages = [];
+
+        // Recursively walk through all subpages
+        while ($objPages->next()) {
+
+            $domain = '';
+
+            $objPage = \PageModel::findWithDetails($objPages->id);
+
+            if ($objPage->noSearch) {
+                continue;
+            }
+
+            if ($objPage->domain != '') {
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . TL_PATH . '/';
+            } else {
+                $domain = \Environment::get('base');
+            }
+
+            $arrPages[] = ['label' => $domain, 'value' => $objPage->id];
         }
 
         return $arrPages;

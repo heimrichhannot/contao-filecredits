@@ -28,7 +28,9 @@ class FileCredit extends \Controller
 
     /**
      * Get file credits for a file
+     *
      * @param mixed $file Valid path or uuid
+     *
      * @return bool|array The credits as array, or false if no credits set or file not found or invalid.
      */
     public static function getFileCredit($file)
@@ -114,9 +116,7 @@ class FileCredit extends \Controller
             $strLightboxId = 'lightbox[' . substr(md5($objTemplate->getName() . '_' . $objFilesModel->id), 0, 6) . ']';
         }
 
-        $objTemplate->attribute =
-            ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $objModule->id . '" data-lightbox="' : ' rel="')
-                . $strLightboxId . '"' : '');
+        $objTemplate->attribute = ($strLightboxId ? ($objPage->outputFormat == 'html5' ? ' data-gallery="#gallery-' . $objModule->id . '" data-lightbox="' : ' rel="') . $strLightboxId . '"' : '');
 
         $objTemplate->addImage = false;
 
@@ -159,12 +159,9 @@ class FileCredit extends \Controller
 
         $arrCredits = static::groupCredits($arrCredits, $objModule->creditsGroupBy);
 
-        $arrCredits = array_map(
-            function ($value) use (&$arrCredit) {
-                return $value['output'];
-            },
-            $arrCredits
-        );
+        $arrCredits = array_map(function ($value) use (&$arrCredit) {
+            return $value['output'];
+        }, $arrCredits);
 
         return $arrCredits;
     }
@@ -407,9 +404,9 @@ class FileCredit extends \Controller
      * Get all pages for filecredit index and return them as array
      *
      * @param integer $pid
-     * @param string $domain
+     * @param string  $domain
      * @param boolean $blnIsSitemap
-     * @param string $strLanguage
+     * @param string  $strLanguage
      *
      * @return array
      */
@@ -419,10 +416,7 @@ class FileCredit extends \Controller
         $objDatabase = \Database::getInstance();
 
         // Get published pages
-        $objPages = $objDatabase->prepare(
-            "SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60)
-            . "') AND published='1' ORDER BY sorting"
-        )->execute($pid);
+        $objPages = $objDatabase->prepare("SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' ORDER BY sorting")->execute($pid);
 
         if ($objPages->numRows < 1) {
             return [];
@@ -433,6 +427,10 @@ class FileCredit extends \Controller
         // Recursively walk through all subpages
         while ($objPages->next()) {
             $objPage = \PageModel::findWithDetails($objPages->id);
+
+            if ($objPage->noSearch) {
+                continue;
+            }
 
             if ($objPage->domain != '') {
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
@@ -456,19 +454,14 @@ class FileCredit extends \Controller
                 // Not protected
                 if ((!$objPage->protected)) {
                     // Published
-                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time)
-                        && ($objPage->stop == ''
-                            || $objPage->stop > ($time + 60))
-                    ) {
+                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time) && ($objPage->stop == '' || $objPage->stop > ($time + 60))) {
                         $arrPages[] = $domain . \Controller::generateFrontendUrl($objPage->row(), null, $strLanguage);
                     }
                 }
             }
 
             // Get subpages
-            if ((!$objPage->protected)
-                && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false
-            ) {
+            if ((!$objPage->protected) && ($arrSubpages = static::findFileCreditPages($objPage->id, $domain, $blnIsSitemap, $strLanguage)) != false) {
                 $arrPages = array_merge($arrPages, $arrSubpages);
             }
         }
@@ -478,6 +471,7 @@ class FileCredit extends \Controller
 
     /**
      * Find all credit pages, including all news, events and more
+     *
      * @return array
      */
     public static function findAllFileCreditPages()
@@ -506,6 +500,7 @@ class FileCredit extends \Controller
             if (false === strpos($url, static::REQUEST_INDEX_PARAM)) {
                 return $url . '?' . static::REQUEST_INDEX_PARAM . '=' . $time;
             }
+
             return $url;
         }, $arrPages);
 

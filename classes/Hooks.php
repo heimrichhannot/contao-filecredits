@@ -41,7 +41,7 @@ class Hooks extends \Controller
             $paths = array_merge($paths, $backgrounds['paths']);
         }
 
-        FileCreditIndex::indexFile(\Contao\FilesModel::findMultipleByPaths($paths), Request::getGet((int) FileCredit::REQUEST_INDEX_PARAM));
+        FileCreditIndex::indexFile(\Contao\FilesModel::findMultipleByPaths($paths), (int) Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
 
         return $strBuffer;
     }

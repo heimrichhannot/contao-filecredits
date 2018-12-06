@@ -14,6 +14,7 @@ namespace HeimrichHannot\FileCredit;
 
 use Contao\Database;
 use Contao\PageModel;
+use HeimrichHannot\Request\Request;
 
 class FileCreditIndex extends \Controller
 {
@@ -192,7 +193,7 @@ class FileCreditIndex extends \Controller
         $blnCheck = true;
 
         while ($objFiles->next()) {
-            $return   = static::indexFile($objFiles->current());
+            $return   = static::indexFile($objFiles->current(), (int) Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
             $blnCheck = !$blnCheck ?: $return;
         }
 

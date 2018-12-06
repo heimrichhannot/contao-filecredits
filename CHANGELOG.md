@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.2.2] - 2018-12-06
+
+### Fixed
+- more indexer time issue
+
 ## [3.2.1] - 2018-12-06
 
 ### Fixed

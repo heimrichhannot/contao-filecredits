@@ -29,7 +29,7 @@ class IndexManager
         @ini_set('max_execution_time', 0);
 
         $pages = FileCredit::findAllFileCreditPages();
-
+        
         $this->goodPages = $pages;
 
         // collect $this->indexPages
@@ -57,7 +57,7 @@ class IndexManager
             }
 
             foreach ($pages as $url) {
-                yield new Request('GET', $index ? $url : Url::removeQueryString([FileCredit::REQUEST_INDEX_PARAM], $url));
+                yield new Request('GET', $index ? $url : Url::removeQueryString([FileCredit::REQUEST_INDEX_PARAM], $url), ['User-Agent' => 'Contao filecredits crawler']);
             }
         };
 

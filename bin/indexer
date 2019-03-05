@@ -12,7 +12,6 @@
 
 define('TL_MODE', 'FE');
 define('TL_SCRIPT', 'system/modules/filecredits/bin/indexer');
-
 if (file_exists(__DIR__ . '/../../../initialize.php')) {
     // Regular way
     require_once(__DIR__ . '/../../../initialize.php');
@@ -25,6 +24,5 @@ if (file_exists(__DIR__ . '/../../../initialize.php')) {
 } else {
     throw new \RuntimeException('Contao initialize.php not found');
 }
-
 $manager = new \HeimrichHannot\FileCredit\IndexManager();
 $manager->run();

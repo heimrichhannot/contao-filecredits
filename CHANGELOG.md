@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.2.3] - 2019-03-05
+
+### Fixed
+- override `User-Agent` to ignore potential settings in htacces
+
 ## [3.2.2] - 2018-12-06
 
 ### Fixed

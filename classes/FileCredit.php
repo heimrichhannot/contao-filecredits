@@ -11,10 +11,20 @@
 
 namespace HeimrichHannot\FileCredit;
 
+use Contao\Controller;
+use Contao\Database;
+use Contao\Date;
+use Contao\Environment;
+use Contao\FilesModel;
+use Contao\FrontendTemplate;
+use Contao\Model\Collection;
+use Contao\NewsModel;
 use Contao\PageModel;
+use Contao\StringUtil;
 use Contao\System;
+use Contao\Validator;
 
-class FileCredit extends \Controller
+class FileCredit extends Controller
 {
     const REQUEST_INDEX_PARAM = 'filecredit_index';
 
@@ -37,17 +47,17 @@ class FileCredit extends \Controller
     {
         $model = null;
 
-        if (\Contao\Validator::isUuid($file)) {
-            $model = \Contao\FilesModel::findByUuid($file);
+        if (Validator::isUuid($file)) {
+            $model = FilesModel::findByUuid($file);
         } elseif ($file) {
-            $model = \Contao\FilesModel::findByPath($file);
+            $model = FilesModel::findByPath($file);
         }
 
         if ($model === null) {
             return false;
         }
 
-        $credits = array_filter(deserialize($model->copyright, true));
+        $credits = array_filter(StringUtil::deserialize($model->copyright, true));
 
         if (empty($credits)) {
             return false;
@@ -60,7 +70,7 @@ class FileCredit extends \Controller
     {
         global $objPage;
 
-        $objTemplate = new \FrontendTemplate(!$objModule->creditsGroupBy ? 'filecredit_default' : 'filecredit_grouped');
+        $objTemplate = new FrontendTemplate(!$objModule->creditsGroupBy ? 'filecredit_default' : 'filecredit_grouped');
 
         // skip if no files model exists
         if (($objFilesModel = $objModel->getRelated('uuid')) === null) {
@@ -88,8 +98,8 @@ class FileCredit extends \Controller
                 continue;
             }
 
-            if ($arrCredit['url'] == '' && ($objTarget = \PageModel::findByPk($arrCredit['page'])) !== null) {
-                $arrCredit['url'] = \Controller::generateFrontendUrl($objTarget->row());
+            if ($arrCredit['url'] == '' && ($objTarget = PageModel::findByPk($arrCredit['page'])) !== null) {
+                $arrCredit['url'] = Controller::generateFrontendUrl($objTarget->row());
             }
 
             $arrPages[] = $arrCredit;
@@ -124,13 +134,13 @@ class FileCredit extends \Controller
         if (!is_file(TL_ROOT . '/' . $objModel->path)) {
             $arrData = ['singleSRC' => $objFilesModel->path, 'doNotIndex' => true];
 
-            $size = deserialize($objModule->imgSize);
+            $size = StringUtil::deserialize($objModule->imgSize);
 
             if ($size[0] > 0 || $size[1] > 0 || is_numeric($size[2])) {
                 $arrData['size'] = $objModule->imgSize;
             }
 
-            \Controller::addImageToTemplate($objTemplate, $arrData);
+            Controller::addImageToTemplate($objTemplate, $arrData);
         }
 
         return [
@@ -142,7 +152,7 @@ class FileCredit extends \Controller
     }
 
 
-    public static function parseCredits(\Model\Collection $objModels, array $arrPids = [], $objModule)
+    public static function parseCredits(Collection $objModels, array $arrPids = [], $objModule)
     {
         $arrCredits = [];
 
@@ -203,14 +213,12 @@ class FileCredit extends \Controller
 
     public static function getSortValue($sort, $objTemplate)
     {
-        $ref = new \ReflectionClass(__CLASS__);
-
         switch ($sort) {
-            case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_ASC):
-            case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
+            case static::FILECREDIT_SORTBY_COPYRIGHT_ASC:
+            case static::FILECREDIT_SORTBY_COPYRIGHT_DESC:
                 return strtolower(ltrim(preg_replace('/[^A-Za-z0-9 ]/', '', $objTemplate->copyright)));
-            case $ref->getConstant(FILECREDIT_SORTBY_PAGES_ASC):
-            case $ref->getConstant(FILECREDIT_SORTBY_PAGES_DESC):
+            case static::FILECREDIT_SORTBY_PAGES_ASC:
+            case static::FILECREDIT_SORTBY_PAGES_DESC:
                 return $objTemplate->pageCount;
             default:
                 return ltrim(preg_replace('/[^A-Za-z0-9 ]/', '', $objTemplate->copyright));
@@ -219,10 +227,8 @@ class FileCredit extends \Controller
 
     public static function getGroupValue($mode, $objTemplate)
     {
-        $ref = new \ReflectionClass(__CLASS__);
-
         switch ($mode) {
-            case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
+            case static::FILECREDIT_GROUPBY_COPYRIGHT:
                 return $objTemplate->copyright;
             default:
                 return null;
@@ -231,25 +237,23 @@ class FileCredit extends \Controller
 
     public static function sortCredits(array $arrCredits, $sort)
     {
-        $ref = new \ReflectionClass(__CLASS__);
-
         $dir  = SORT_ASC;
         $type = SORT_REGULAR;
 
         switch ($sort) {
-            case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_ASC):
-            case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
+            case static::FILECREDIT_SORTBY_COPYRIGHT_ASC:
+            case static::FILECREDIT_SORTBY_COPYRIGHT_DESC:
                 $type = SORT_STRING OR SORT_FLAG_CASE;
                 break;
-            case $ref->getConstant(FILECREDIT_SORTBY_PAGES_ASC):
-            case $ref->getConstant(FILECREDIT_SORTBY_PAGES_DESC):
+            case static::FILECREDIT_SORTBY_PAGES_ASC:
+            case static::FILECREDIT_SORTBY_PAGES_DESC:
                 $type = SORT_NUMERIC;
                 break;
         }
 
         switch ($sort) {
-            case $ref->getConstant(FILECREDIT_SORTBY_PAGES_DESC):
-            case $ref->getConstant(FILECREDIT_SORTBY_COPYRIGHT_DESC):
+            case static::FILECREDIT_SORTBY_PAGES_DESC:
+            case static::FILECREDIT_SORTBY_COPYRIGHT_DESC:
                 $dir = SORT_DESC;
                 break;
         }
@@ -266,15 +270,14 @@ class FileCredit extends \Controller
             return $arrCredits;
         }
 
-        $ref       = new \ReflectionClass(__CLASS__);
         $arrGroups = [];
         $arrReturn = [];
 
         switch ($mode) {
-            case $ref->getConstant(FILECREDIT_GROUPBY_COPYRIGHT):
+            case static::FILECREDIT_GROUPBY_COPYRIGHT:
 
 
-                $objTemplate = new \FrontendTemplate('filecreditgroup_' . $mode);
+                $objTemplate = new FrontendTemplate('filecreditgroup_' . $mode);
 
                 foreach ($arrCredits as $arrCredit) {
                     $arrGroups[$arrCredit['group']][] = $arrCredit['output'];
@@ -306,14 +309,14 @@ class FileCredit extends \Controller
 
     protected static function addCopyrightToTemplate(&$objTemplate, $objFilesModel, $objModule)
     {
-        $arrCopyright = deserialize($objFilesModel->copyright, true);
+        $arrCopyright = StringUtil::deserialize($objFilesModel->copyright, true);
         $arrList      = [];
 
         foreach ($arrCopyright as $strCopyright) {
-            $strCopyright = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($strCopyright));
+            $strCopyright = StringUtil::decodeEntities(StringUtil::restoreBasicEntities($strCopyright));
 
             if ($objModule->creditsPrefix != '') {
-                $strPrefix = \StringUtil::decodeEntities(\StringUtil::restoreBasicEntities($objModule->creditsPrefix));
+                $strPrefix = StringUtil::decodeEntities(StringUtil::restoreBasicEntities($objModule->creditsPrefix));
 
                 if (!($strPrefix === "" || strrpos($strCopyright, $strPrefix, -strlen($strCopyright)) !== false)) {
                     $strCopyright = $strPrefix . trim(ltrim($strCopyright, $strPrefix));
@@ -343,11 +346,11 @@ class FileCredit extends \Controller
 
     public static function addCopyrightFieldToDca($strTable, $strField, $strFileField, $blnUseDefaultLabel = true)
     {
-        \Controller::loadDataContainer('tl_files');
-        \System::loadLanguageFile('tl_files');
+        Controller::loadDataContainer('tl_files');
+        System::loadLanguageFile('tl_files');
 
-        \Controller::loadDataContainer($strTable);
-        \System::loadLanguageFile($strTable);
+        Controller::loadDataContainer($strTable);
+        System::loadLanguageFile($strTable);
 
         $arrDca = &$GLOBALS['TL_DCA'][$strTable];
 
@@ -365,12 +368,12 @@ class FileCredit extends \Controller
 
     public static function loadCopyright($varValue, \DataContainer $objDc)
     {
-        if (($objNews = \NewsModel::findByPk($objDc->id)) === null) {
+        if (($objNews = NewsModel::findByPk($objDc->id)) === null) {
             return null;
         }
 
-        \Controller::loadDataContainer($objDc->table);
-        \System::loadLanguageFile($objDc->table);
+        Controller::loadDataContainer($objDc->table);
+        System::loadLanguageFile($objDc->table);
 
         $arrDca        = $GLOBALS['TL_DCA'][$objDc->table];
         $strImageField = $arrDca['fields'][$objDc->field]['eval']['fileField'];
@@ -382,12 +385,12 @@ class FileCredit extends \Controller
 
     public static function saveCopyright($varValue, \DataContainer $objDc)
     {
-        if (($objNews = \NewsModel::findByPk($objDc->id)) === null) {
+        if (($objNews = NewsModel::findByPk($objDc->id)) === null) {
             return null;
         }
 
-        \Controller::loadDataContainer($objDc->table);
-        \System::loadLanguageFile($objDc->table);
+        Controller::loadDataContainer($objDc->table);
+        System::loadLanguageFile($objDc->table);
 
         $arrDca        = $GLOBALS['TL_DCA'][$objDc->table];
         $strImageField = $arrDca['fields'][$objDc->field]['eval']['fileField'];
@@ -412,8 +415,8 @@ class FileCredit extends \Controller
      */
     protected static function findFileCreditPages($pid = 0, $domain = '', $blnIsSitemap = false, $strLanguage = '')
     {
-        $time        = \Date::floorToMinute();
-        $objDatabase = \Database::getInstance();
+        $time        = Date::floorToMinute();
+        $objDatabase = Database::getInstance();
 
         // Get published pages
         $objPages = $objDatabase->prepare("SELECT * FROM tl_page WHERE pid=? AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' ORDER BY sorting")->execute($pid);
@@ -426,7 +429,7 @@ class FileCredit extends \Controller
 
         // Recursively walk through all subpages
         while ($objPages->next()) {
-            $objPage = \PageModel::findWithDetails($objPages->id);
+            $objPage = PageModel::findWithDetails($objPages->id);
 
             if ($objPage->noSearch) {
                 continue;
@@ -436,7 +439,7 @@ class FileCredit extends \Controller
                 $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
             } else {
                 $rootPage   = PageModel::findByPk($objPage->rootId);
-                $rootDomain = $rootPage->domain ?: \Environment::get('host');
+                $rootDomain = $rootPage->domain ?: Environment::get('host');
 
                 if (!preg_match('/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/', $rootDomain)) {
                     System::log(sprintf('Filecredit Indexer: You must declare a domain on the root page of page with id %s in order to index file credits.', $objPage->id), __METHOD__, TL_ERROR);
@@ -455,7 +458,7 @@ class FileCredit extends \Controller
                 if ((!$objPage->protected)) {
                     // Published
                     if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time) && ($objPage->stop == '' || $objPage->stop > ($time + 60))) {
-                        $arrPages[] = $domain . \Controller::generateFrontendUrl($objPage->row(), null, $strLanguage);
+                        $arrPages[] = $domain . Controller::generateFrontendUrl($objPage->row(), null, $strLanguage);
                     }
                 }
             }
@@ -481,7 +484,7 @@ class FileCredit extends \Controller
         // HOOK: take additional pages (news, events…)
         if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
             foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
-                if (($objCallback = \Controller::importStatic($callback[0])) !== null) {
+                if (($objCallback = Controller::importStatic($callback[0])) !== null) {
                     $arrPages = $objCallback->{$callback[1]}($arrPages);
                 }
             }

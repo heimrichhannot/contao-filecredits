@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.2.4] - 2019-03-13
+
+#### Fixed
+- warning in FileCredit class
+- namespaces in FileCredits class
+- some deprecation warnings in FileCredit class
+
 ## [3.2.3] - 2019-03-05
 
 ### Fixed

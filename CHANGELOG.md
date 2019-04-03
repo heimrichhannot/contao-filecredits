@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.2.5] - 2019-04-03
+
+#### Fixed
+- Contao 3 compatibility
+
 ## [3.2.4] - 2019-03-13
 
 #### Fixed

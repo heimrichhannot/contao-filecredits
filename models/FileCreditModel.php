@@ -11,6 +11,8 @@
 
 namespace HeimrichHannot\FileCredit;
 
+use Contao\StringUtil;
+
 class FileCreditModel extends \Model
 {
     protected static $strTable = 'tl_filecredit';
@@ -22,7 +24,7 @@ class FileCreditModel extends \Model
         // Convert UUIDs to binary
         if (\Validator::isStringUuid($strUuid))
         {
-            $strUuid = \StringUtil::uuidToBin($strUuid);
+            $strUuid = StringUtil::uuidToBin($strUuid);
         }
 
         $arrColumns = ["$t.uuid=UNHEX(?)"];
@@ -37,7 +39,7 @@ class FileCreditModel extends \Model
         // Convert UUIDs to binary
         if (\Validator::isStringUuid($strUuid))
         {
-            $strUuid = \StringUtil::uuidToBin($strUuid);
+            $strUuid = StringUtil::uuidToBin($strUuid);
         }
 
         $arrColumns = ["$t.uuid=UNHEX(?) AND $t.pid=? AND $t.url=?"];

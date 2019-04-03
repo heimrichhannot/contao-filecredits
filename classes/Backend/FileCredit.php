@@ -14,7 +14,7 @@ namespace HeimrichHannot\FileCredit\Backend;
 use Contao\Backend;
 use Contao\DataContainer;
 use Contao\Input;
-use Contao\PageModel;
+use Contao\StringUtil;
 use Contao\Versions;
 use HeimrichHannot\FileCredit\Automator;
 use HeimrichHannot\FileCredit\FileCreditModel;
@@ -181,7 +181,7 @@ class FileCredit extends Backend implements \executable
                     continue;
                 }
 
-                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100) . '</span><br>';
+                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . StringUtil::substr($arrPages[$i], 100) . '</span><br>';
                 unset($arrPages[$i]); // see #5681
             }
 

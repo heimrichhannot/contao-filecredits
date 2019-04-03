@@ -57,7 +57,7 @@ class FileCredit extends Controller
             return false;
         }
 
-        $credits = array_filter(StringUtil::deserialize($model->copyright, true));
+        $credits = array_filter(deserialize($model->copyright, true));
 
         if (empty($credits)) {
             return false;
@@ -134,7 +134,7 @@ class FileCredit extends Controller
         if (!is_file(TL_ROOT . '/' . $objModel->path)) {
             $arrData = ['singleSRC' => $objFilesModel->path, 'doNotIndex' => true];
 
-            $size = StringUtil::deserialize($objModule->imgSize);
+            $size = deserialize($objModule->imgSize);
 
             if ($size[0] > 0 || $size[1] > 0 || is_numeric($size[2])) {
                 $arrData['size'] = $objModule->imgSize;
@@ -309,7 +309,7 @@ class FileCredit extends Controller
 
     protected static function addCopyrightToTemplate(&$objTemplate, $objFilesModel, $objModule)
     {
-        $arrCopyright = StringUtil::deserialize($objFilesModel->copyright, true);
+        $arrCopyright = deserialize($objFilesModel->copyright, true);
         $arrList      = [];
 
         foreach ($arrCopyright as $strCopyright) {

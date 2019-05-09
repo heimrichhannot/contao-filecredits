@@ -12,10 +12,13 @@ namespace HeimrichHannot\FileCredit\Backend;
 
 
 use Contao\Backend;
+use Contao\Controller;
 use Contao\DataContainer;
 use Contao\Input;
+use Contao\PageSelector;
 use Contao\StringUtil;
 use Contao\Versions;
+use Haste\Util\Url;
 use HeimrichHannot\FileCredit\Automator;
 use HeimrichHannot\FileCredit\FileCreditModel;
 use HeimrichHannot\FileCredit\FileCreditPageModel;
@@ -112,7 +115,7 @@ class FileCredit extends Backend implements \executable
         }
 
         // Add the error message
-        if ($_SESSION['REBUILD_FILECREDIT_ERROR'] != '') {
+        if (isset($_SESSION['REBUILD_FILECREDIT_ERROR']) && $_SESSION['REBUILD_FILECREDIT_ERROR'] != '') {
             $objTemplate->indexMessage            = $_SESSION['REBUILD_FILECREDIT_ERROR'];
             $_SESSION['REBUILD_FILECREDIT_ERROR'] = '';
         }
@@ -127,11 +130,11 @@ class FileCredit extends Backend implements \executable
 
             $blnTruncateTable = true;
 
-            if (\Input::post('limitfilecreditpages')) {
-                $arrSelectedPages = \Input::post('filecreditpages');
+            if (\Input::post('pages')) {
+                $arrSelectedPages = \Input::post('pages');
                 $arrPages         = [];
                 if (is_array($arrSelectedPages) && !empty($arrSelectedPages)) {
-                    $arrPages = $arrSelectedPages;
+                    $arrPages = \HeimrichHannot\FileCredit\FileCredit::findAllFileCreditPages($arrSelectedPages);
                     unset($arrSelectedPages);
                     $blnTruncateTable = false;
                 }
@@ -141,7 +144,7 @@ class FileCredit extends Backend implements \executable
             // Return if there are no pages
             if (empty($arrPages)) {
                 $_SESSION['REBUILD_FILECREDIT_ERROR'] = $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'];
-                \Controller::redirect(\System::getReferer());
+                Controller::reload();
             }
 
             // Truncate the search tables
@@ -181,7 +184,7 @@ class FileCredit extends Backend implements \executable
                     continue;
                 }
 
-                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . StringUtil::substr($arrPages[$i], 100) . '</span><br>';
+                $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '" data-error-url="' . Url::addQueryString(\HeimrichHannot\FileCredit\FileCredit::REQUEST_DEINDEX_PARAM . '=1') . '">' . StringUtil::substr($arrPages[$i], 100) . '</span><br>';
                 unset($arrPages[$i]); // see #5681
             }
 
@@ -213,36 +216,27 @@ class FileCredit extends Backend implements \executable
 
     protected function generatePageSelection()
     {
-        $objTemplate                            = new \BackendTemplate('be_filecredits_sync_pageselection');
-        $objTemplate->limitFileCreditPagesLabel = $GLOBALS['TL_LANG']['tl_filecredit']['limitfilecreditpages'];
+        $template                            = new \BackendTemplate('be_filecredits_sync_pageselection');
+        $template->limitFileCreditPagesLabel = $GLOBALS['TL_LANG']['tl_filecredit']['limitfilecreditpages'];
 
-        return $objTemplate->parse();
+        return $template->parse();
     }
 
     protected function registerEvents()
     {
-        if (\Environment::get('isAjaxRequest') && Input::get('action') == 'toggleFileCreditPages') {
-            if (Input::get('state') == 1 && 'limitfilecreditpages' === Input::get('field')) {
-                $arrPages = static::findRootFileCreditPages();
+        if(!\Environment::get('isAjaxRequest')){
+            return;
+        }
 
-                $objTemplate        = new \BackendTemplate('be_filecredits_sync_pageselection_root');
-                $objTemplate->pages = is_array($arrPages) ? $arrPages : [];
-                die($objTemplate->parse());
-
-            } elseif (1 == Input::get('state') && 'limitfilecreditpagesroot' === Input::get('field')) {
-                $arrPages = static::findFileCreditPages(Input::get('value'));
-                // HOOK: take additional pages
-                if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
-                    foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
-                        $arrPages = \System::importStatic($callback[0])->{$callback[1]}($arrPages, Input::get('value'));
-                    }
-                }
-
-                $objTemplate                 = new \BackendTemplate('be_filecredits_sync_pageselection_tree');
-                $objTemplate->pages          = is_array($arrPages) ? $arrPages : [];
-                $objTemplate->checkAllLegend = $GLOBALS['TL_LANG']['tl_filecredit']['checkAllLegend'];
-                die($objTemplate->parse());
-            }
+        if(Input::get('action') === 'toggleFileCreditPages' && Input::get('state') == 1 && 'limitfilecreditpages' === Input::get('field'))
+        {
+            $template = new \BackendTemplate('be_filecredits_sync_pageselection_root');
+            $selector = new PageSelector(['label' => $GLOBALS['TL_LANG']['tl_module']['pages'][0], 'name' => 'pages']);
+            $selector->fieldType = 'checkbox';
+            $template->label = $selector->generateLabel();
+            $template->tree = $selector->generate();
+            $template->selector = $selector;
+            die($template->parse());
         }
     }
 
@@ -250,9 +244,9 @@ class FileCredit extends Backend implements \executable
      * Get all pages for filecredit index and return them as array
      *
      * @param integer $pid
-     * @param string  $domain
+     * @param string $domain
      * @param boolean $blnIsSitemap
-     * @param string  $strLanguage
+     * @param string $strLanguage
      *
      * @return array
      */
@@ -322,9 +316,9 @@ class FileCredit extends Backend implements \executable
      * Get all pages for filecredit index and return them as array
      *
      * @param integer $pid
-     * @param string  $domain
+     * @param string $domain
      * @param boolean $blnIsSitemap
-     * @param string  $strLanguage
+     * @param string $strLanguage
      *
      * @return array
      */

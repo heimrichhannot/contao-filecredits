@@ -72,5 +72,5 @@ $GLOBALS['TL_LANG']['tl_filecredit']['indexComplete']         = 'Die Bildnachwei
 $GLOBALS['TL_LANG']['tl_filecredit']['originInfo']            = 'Das Same-Origin-Policy (SOP) Sicherheitskonzept untersagt den meisten Server die Kommunikation mit anderen Systemen über Javascript. Bitte aktivieren Sie unter "System -> Einstellungen" die Option "Add X-Frame Header" und  "Add Access-Control-Allow-Origins Header" um die Kommunikation im Multidomainbetrieb zwischen verschiedenen Instanzen über Javascript zu erlauben.';
 $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['legend'] = 'Legende:';
 $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['green']  = 'Grün: Die Bildnachweise der Seite wurden erfolgreich indiziert.';
-$GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['orange'] = 'Orange: Die Seite wurd erfolgreich geladen (Statuscode: 200), die Bildnachweise werden gleich indiziert.';
-$GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['red']    = 'Rot: Fehler beim Laden der Seite (Statuscode: 404, 500…). Die Bildnachweise können nicht indiziert werden.';
+$GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['orange'] = 'Orange: Fehler beim Laden der Seite (Statuscode: 404,500…), die Bildnachweise werden anschließend deindexiert.';
+$GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['red']    = 'Rot: Die Bildnachweise wurden erfolgreich deindexiert (Fehler beim Laden der Seite).';

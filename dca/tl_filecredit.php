@@ -31,9 +31,9 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
     // List
     'list'        => [
         'sorting'           => [
-            'mode'            => 1,
-            'panelLayout'     => 'filter;search,limit',
-            'fields'          => ['tstamp'],
+            'mode'        => 1,
+            'panelLayout' => 'filter;search,limit',
+            'fields'      => ['tstamp'],
         ],
         'label'             => [
             'fields'         => ['uuid'],
@@ -168,6 +168,9 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
             'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''",
         ],
+        'pages'     => [
+            'eval' => ['fieldType' => 'checkbox'] // required by backend sync PageSelector ajax request
+        ]
     ],
 ];
 

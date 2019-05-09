@@ -14,9 +14,9 @@
 
         <div class="legend">
             <h3 class="sub_headline"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['legend']; ?></h3>
-            <span class="tl_red"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['red']; ?></span><br/>
-            <span class="tl_orange"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['orange']; ?></span><br/>
             <span class="tl_green"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['green']; ?></span><br/>
+            <span class="tl_orange"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['orange']; ?></span><br/>
+            <span class="tl_red"><?= $GLOBALS['TL_LANG']['tl_filecredit']['requestInfo']['red']; ?></span><br/>
         </div>
 
         <?php if ($this->indexMessage): ?>
@@ -35,41 +35,52 @@
 
         <script>
             window.addEvent('domready', function() {
-                function getPathFromUrl(url) {
-                    return url.split(/[?#]/)[0];
-                }
+                var errorQueue = new Request.Queue({
+                    onEnd: function() {
+                        $('index_loading').setStyle('display', 'none');
+                        $('index_complete').setStyle('display', 'block');
+                    },
+                    concurrent: 1,
+                    stopOnFailure: false,
+                });
+
+                var queue = new Request.Queue({
+                    onEnd: function() {
+                        var errorRequests = Object.values(errorQueue.requests);
+                        if (errorRequests.length) {
+                            errorRequests.invoke('get');
+                        } else {
+                            $('index_loading').setStyle('display', 'none');
+                            $('index_complete').setStyle('display', 'block');
+                        }
+                    },
+                    concurrent: 1,
+                    stopOnFailure: false,
+                });
 
                 var urls = $$('.page_url'),
                     last = urls.length - 1, url;
                 urls.each(function(el, i) {
-                    el.getAttribute('data-url') && new Request({
-                        'url': getPathFromUrl(el.getAttribute('data-url')),
-                        'headers': {'X-Requested-With': 'XMLHttpRequest'},
+                    el.getAttribute('data-url') && queue.addRequest(i, new Request({
+                        url: el.getAttribute('data-url'),
                         onSuccess: function(responseText, responseXML) {
-                            el.addClass('tl_orange');
-                            // do index only if request without filecredit_index parameters throws no exception (404..)
-                            new Request({
-                                'url': el.getAttribute('data-url'),
-                                'headers': {'X-Requested-With': 'XMLHttpRequest'},
-                                onComplete: function() {
-                                    el.addClass('tl_green');
-                                    el.removeClass('tl_orange');
-                                    if (i == last) {
-                                        $('index_loading').setStyle('display', 'none');
-                                        $('index_complete').setStyle('display', 'block');
-                                    }
-                                },
-                            }).get();
+                            el.addClass('tl_green');
                         },
                         onFailure: function(xhr) {
-                            el.addClass('tl_red');
-                            if (i == last) {
-                                $('index_loading').setStyle('display', 'none');
-                                $('index_complete').setStyle('display', 'block');
-                            }
+                            el.addClass('tl_orange');
+
+                            // do deindex if request returned with error
+                            errorQueue.addRequest(i, new Request({
+                                url: el.getAttribute('data-error-url'),
+                                onComplete: function() {
+                                    el.addClass('tl_red');
+                                },
+                            }));
                         },
-                    }).get();
+                    }));
+
                 });
+                Object.values(queue.requests).invoke('get');
             });
         </script>
 
@@ -89,7 +100,7 @@
                 <input type="hidden" name="do" value="filecredit">
                 <input type="hidden" name="key" value="sync">
                 <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
-                <div class="tl_tbox tl_listing_container">
+                <div class="tl_tbox">
                     <?= $this->pageSelection; ?>
                 </div>
             </div>

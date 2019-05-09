@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.3.0] - 2019-04-03
+
+### Fixed
+- Contao 3 compatibility `Could not find template "be_filecredits_sync_pageselection_root"`
+- Performance issues, do not index twice, just deindex credits on associcated 404,500 pages afterwards
+
+### Changed
+- use PageSelecotr picker in backend mode sync view 
+
 ## [3.2.5] - 2019-04-03
 
 #### Fixed

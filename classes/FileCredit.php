@@ -27,6 +27,7 @@ use Contao\Validator;
 class FileCredit extends Controller
 {
     const REQUEST_INDEX_PARAM = 'filecredit_index';
+    const REQUEST_DEINDEX_PARAM = 'filecredit_deindex';
 
     const FILECREDIT_SORTBY_COPYRIGHT_ASC  = 'copyright_asc';
     const FILECREDIT_SORTBY_COPYRIGHT_DESC = 'copyright_desc';
@@ -406,10 +407,81 @@ class FileCredit extends Controller
     /**
      * Get all pages for filecredit index and return them as array
      *
-     * @param integer $pid
-     * @param string  $domain
+     * @param array $ids
+     * @param string $domain
      * @param boolean $blnIsSitemap
-     * @param string  $strLanguage
+     * @param string $strLanguage
+     *
+     * @return array
+     */
+    protected static function findFileCreditPagesByIds(array $ids = [], $domain = '', $blnIsSitemap = false, $strLanguage = '')
+    {
+        $time        = Date::floorToMinute();
+        $objDatabase = Database::getInstance();
+
+        // Get published pages
+        $objPages = $objDatabase->prepare("SELECT * FROM tl_page WHERE id IN (" . implode(',', array_map('intval', $ids)) .") AND (start='' OR start<='$time') AND (stop='' OR stop>'" . ($time + 60) . "') AND published='1' ORDER BY sorting")->execute();
+
+        if ($objPages->numRows < 1) {
+            return [];
+        }
+
+        $arrPages = [];
+
+        // Recursively walk through all subpages
+        while ($objPages->next()) {
+            $objPage = PageModel::findWithDetails($objPages->id);
+
+            if($objPage->type === 'root')
+            {
+                $arrPages = array_merge($arrPages, static::findFileCreditPagesByIds($objDatabase->getChildRecords($objPage->id, 'tl_page'), $domain, $blnIsSitemap, $strLanguage));
+                continue;
+            }
+
+            if ($objPage->noSearch) {
+                continue;
+            }
+
+            if ($objPage->domain != '') {
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $objPage->domain . '/';
+            } else {
+                $rootPage   = PageModel::findByPk($objPage->rootId);
+                $rootDomain = $rootPage->domain ?: Environment::get('host');
+
+                if (!preg_match('/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/', $rootDomain)) {
+                    System::log(sprintf('Filecredit Indexer: You must declare a domain on the root page of page with id %s in order to index file credits.', $objPage->id), __METHOD__, TL_ERROR);
+                    continue;
+                }
+
+                $domain = ($objPage->rootUseSSL ? 'https://' : 'http://') . $rootDomain . '/';
+            }
+
+            // Set domain
+            if ($objPage->type == 'root') {
+                $strLanguage = $objPage->language;
+            } // Add regular pages
+            elseif ($objPage->type == 'regular') {
+                // Not protected
+                if ((!$objPage->protected)) {
+                    // Published
+                    if ($objPage->published && ($objPage->start == '' || $objPage->start <= $time) && ($objPage->stop == '' || $objPage->stop > ($time + 60))) {
+                        $arrPages[] = $domain . Controller::generateFrontendUrl($objPage->row(), null, $strLanguage);
+                    }
+                }
+            }
+        }
+
+        return $arrPages;
+    }
+
+
+    /**
+     * Get all pages for filecredit index and return them as array
+     *
+     * @param integer $pid
+     * @param string $domain
+     * @param boolean $blnIsSitemap
+     * @param string $strLanguage
      *
      * @return array
      */
@@ -474,18 +546,27 @@ class FileCredit extends Controller
 
     /**
      * Find all credit pages, including all news, events and more
+     * @param array $ids List if parent page ids
      *
      * @return array
      */
-    public static function findAllFileCreditPages()
+    public static function findAllFileCreditPages(array $ids = [])
     {
-        $arrPages = static::findFileCreditPages();
+        $arrPages = [];
 
-        // HOOK: take additional pages (news, events…)
-        if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
-            foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
-                if (($objCallback = Controller::importStatic($callback[0])) !== null) {
-                    $arrPages = $objCallback->{$callback[1]}($arrPages);
+        if (is_array($ids) && !empty($ids)) {
+            $arrPages = array_merge($arrPages, static::findFileCreditPagesByIds($ids));
+        } else {
+            $arrPages = static::findFileCreditPages();
+        }
+
+        if(!empty($arrPages)){
+            // HOOK: take additional pages (news, events…)
+            if (isset($GLOBALS['TL_HOOKS']['getSearchablePages']) && is_array($GLOBALS['TL_HOOKS']['getSearchablePages'])) {
+                foreach ($GLOBALS['TL_HOOKS']['getSearchablePages'] as $callback) {
+                    if (($objCallback = Controller::importStatic($callback[0])) !== null) {
+                        $arrPages = $objCallback->{$callback[1]}($arrPages);
+                    }
                 }
             }
         }

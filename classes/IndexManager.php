@@ -18,25 +18,13 @@ use Haste\Util\Url;
 
 class IndexManager
 {
-    /**
-     * Pages with content (200)
-     * @var array
-     */
-    protected $goodPages = [];
-
     public function run()
     {
         @ini_set('max_execution_time', 0);
 
         $pages = FileCredit::findAllFileCreditPages();
-        
-        $this->goodPages = $pages;
 
-        // collect $this->indexPages
         $this->crawl($pages);
-
-        // crawl non error (404, 500) pages
-        $this->crawl($this->goodPages, true);
 
         System::log('Successfully indexed file credits on ' . count($pages) . ' pages.', __METHOD__, TL_CRON);
     }
@@ -44,32 +32,37 @@ class IndexManager
     /**
      * Crawl given pages
      * @param array $pages
+     * @param bool $index
      */
-    protected function crawl(array $pages = [], bool $index = false)
+    protected function crawl(array $pages = [])
     {
         // do not verify ssl certificates
-        $client = new Client(['verify' => false]);
+        $client = new Client(['headers' => ['User-Agent' => 'Contao filecredits crawler'], 'verify' => false]);
 
-        $requests = function ($pages) use ($client, $index) {
+        $requests = function ($pages) use ($client) {
 
             if (null === $pages) {
                 return;
             }
 
             foreach ($pages as $url) {
-                yield new Request('GET', $index ? $url : Url::removeQueryString([FileCredit::REQUEST_INDEX_PARAM], $url), ['User-Agent' => 'Contao filecredits crawler']);
+                yield new Request('GET', $url);
             }
         };
 
         $pool = new Pool($client, $requests($pages), [
             'concurrency' => 5,
-            'fulfilled'   => function (Response $response, $index) {
+            'fulfilled'   => function (Response $response, $index) use ($pages, $client) {
                 if ($response->getStatusCode() != 200) {
-                    unset($this->goodPages[$index]);
+                    // deindex file credits if page returned an error
+                    $request = new Request('GET', Url::addQueryString(FileCredit::REQUEST_DEINDEX_PARAM . '=1', $pages[$index]));
+                    $client->send($request);
                 }
             },
-            'rejected'    => function ($reason, $index) {
-                unset($this->goodPages[$index]);
+            'rejected'    => function ($reason, $index) use ($pages, $client){
+                // deindex file credits if page returned an error
+                $request = new Request('GET', Url::addQueryString(FileCredit::REQUEST_DEINDEX_PARAM . '=1', $pages[$index]));
+                $client->send($request);
             },
         ]);
 

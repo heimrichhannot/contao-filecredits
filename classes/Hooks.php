@@ -41,7 +41,7 @@ class Hooks extends \Controller
             $paths = array_merge($paths, $backgrounds['paths']);
         }
 
-        FileCreditIndex::indexFile(\Contao\FilesModel::findMultipleByPaths($paths), (int) Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
+        FileCreditIndex::indexFile(\Contao\FilesModel::findMultipleByPaths($paths), (int)Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
 
         return $strBuffer;
     }
@@ -59,7 +59,7 @@ class Hooks extends \Controller
         }
 
         // purge all file credits before running executeResizeHook
-        Automator::purgeFileCreditTables([$objPage->id], (int) Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
+        Automator::purgeFileCreditTables([$objPage->id], (int)Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
     }
 
     /**
@@ -73,7 +73,10 @@ class Hooks extends \Controller
             return false;
         } // do not return a string to not interrupt Image::executeResize
 
-        FileCreditIndex::indexFile(\Contao\FilesModel::findByPath($objImage->getOriginalPath()), (int) Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
+        // after getPageLayoutHook was triggered and filecredits for this page were purged, add filecredits again
+        if (!Request::hasGet(FileCredit::REQUEST_DEINDEX_PARAM)) {
+            FileCreditIndex::indexFile(\Contao\FilesModel::findByPath($objImage->getOriginalPath()), (int)Request::getGet(FileCredit::REQUEST_INDEX_PARAM));
+        }
 
         return false; // do not return a string to not interrupt Image::executeResize
     }

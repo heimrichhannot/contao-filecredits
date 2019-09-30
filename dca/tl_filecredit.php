@@ -93,7 +93,7 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
     // Palettes
     'palettes'    => [
         '__selector__' => ['published'],
-        'default'      => '{file_legend},uuid,copyright,author;{publish_legend},published',
+        'default'      => '{file_legend},uuid,copyright,copyrightUrl,author;{publish_legend},published',
     ],
     // Subpalettes
     'subpalettes' => [
@@ -142,6 +142,14 @@ $GLOBALS['TL_DCA']['tl_filecredit'] = [
             'save_callback'    => [
                 ['HeimrichHannot\FileCredit\Backend\FileCredit', 'setCopyright'],
             ],
+        ],
+        'copyrightUrl' => [
+            'label'                   => &$GLOBALS['TL_LANG']['tl_filecredit']['copyrightUrl'],
+            'exclude'                 => true,
+            'search'                  => true,
+            'inputType'               => 'text',
+            'eval'                    => ['maxlength' => 255, 'tl_class' => 'long', 'rgxp' => 'url'],
+            'sql'                     => "varchar(255) NOT NULL default ''"
         ],
         'checksum'  => [
             'sql' => "varchar(32) NOT NULL default ''",

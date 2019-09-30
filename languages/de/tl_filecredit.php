@@ -12,18 +12,20 @@
 /**
  * Fields
  */
-$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'][0]    = 'Änderungsdatum';
-$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'][1]    = 'Datum und Uhrzeit der letzten Änderung';
-$GLOBALS['TL_LANG']['tl_filecredit']['uuid'][0]      = 'Quelldatei';
-$GLOBALS['TL_LANG']['tl_filecredit']['uuid'][1]      = 'Bitte wählen Sie eine Datei oder einen Ordner aus der Dateiübersicht.';
-$GLOBALS['TL_LANG']['tl_filecredit']['published'][0] = 'Quellenangabe veröffentlichen';
-$GLOBALS['TL_LANG']['tl_filecredit']['published'][1] = 'Die Quellenangabe auf der Webseite anzeigen.';
-$GLOBALS['TL_LANG']['tl_filecredit']['start'][0]     = 'Anzeigen ab';
-$GLOBALS['TL_LANG']['tl_filecredit']['start'][1]     = 'Die Quellenangabe nur bis zu diesem Tag auf der Webseite anzeigen.';
-$GLOBALS['TL_LANG']['tl_filecredit']['stop'][0]      = 'Anzeigen bis';
-$GLOBALS['TL_LANG']['tl_filecredit']['stop'][1]      = 'Die Quellenangabe erst ab diesem Tag auf der Webseite anzeigen.';
-$GLOBALS['TL_LANG']['tl_filecredit']['author'][0]    = 'Autor';
-$GLOBALS['TL_LANG']['tl_filecredit']['author'][1]    = 'Hier können Sie einen Autor der Bildquelle festlegen. Bildquellen mit Autor werden nicht gewartet.';
+$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'][0]       = 'Änderungsdatum';
+$GLOBALS['TL_LANG']['tl_filecredit']['tstamp'][1]       = 'Datum und Uhrzeit der letzten Änderung';
+$GLOBALS['TL_LANG']['tl_filecredit']['uuid'][0]         = 'Quelldatei';
+$GLOBALS['TL_LANG']['tl_filecredit']['uuid'][1]         = 'Bitte wählen Sie eine Datei oder einen Ordner aus der Dateiübersicht.';
+$GLOBALS['TL_LANG']['tl_filecredit']['published'][0]    = 'Quellenangabe veröffentlichen';
+$GLOBALS['TL_LANG']['tl_filecredit']['published'][1]    = 'Die Quellenangabe auf der Webseite anzeigen.';
+$GLOBALS['TL_LANG']['tl_filecredit']['start'][0]        = 'Anzeigen ab';
+$GLOBALS['TL_LANG']['tl_filecredit']['start'][1]        = 'Die Quellenangabe nur bis zu diesem Tag auf der Webseite anzeigen.';
+$GLOBALS['TL_LANG']['tl_filecredit']['stop'][0]         = 'Anzeigen bis';
+$GLOBALS['TL_LANG']['tl_filecredit']['stop'][1]         = 'Die Quellenangabe erst ab diesem Tag auf der Webseite anzeigen.';
+$GLOBALS['TL_LANG']['tl_filecredit']['author'][0]       = 'Autor';
+$GLOBALS['TL_LANG']['tl_filecredit']['author'][1]       = 'Hier können Sie einen Autor der Bildquelle festlegen. Bildquellen mit Autor werden nicht gewartet.';
+$GLOBALS['TL_LANG']['tl_filecredit']['copyrightUrl'][0] = 'URL';
+$GLOBALS['TL_LANG']['tl_filecredit']['copyrightUrl'][1] = 'Geben Sie hier eine URL zum Urheber an.';
 
 
 /**

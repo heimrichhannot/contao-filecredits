@@ -12,3 +12,4 @@
 $GLOBALS['TL_LANG']['MSC']['emptyCreditList'] = 'Keine Bildnachweise vorhanden.';
 $GLOBALS['TL_LANG']['MSC']['creditLinkText'] = 'zum Bild';
 $GLOBALS['TL_LANG']['MSC']['creditPagesLabel'] = 'Seiten:';
+$GLOBALS['TL_LANG']['MSC']['creditPage'] = 'Webseite';

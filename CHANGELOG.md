@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [3.4.1] - 2019-10-01
+
+### Added
+- copyright url to template
+
 ## [3.4.0] - 2019-09-30
 
 ### Added

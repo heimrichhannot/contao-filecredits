@@ -9,6 +9,8 @@
 namespace HeimrichHannot\FileCredit;
 
 
+use Contao\Config;
+
 class PoorMansCron
 {
     public function minutely()
@@ -43,6 +45,10 @@ class PoorMansCron
      */
     private function indexCredits($interval)
     {
+        if (Config::get('deactivateFileCreditsCron')) {
+            return;
+        }
+
         $manager = new IndexManager();
         $manager->run();
     }

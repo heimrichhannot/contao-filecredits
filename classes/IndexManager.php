@@ -62,7 +62,11 @@ class IndexManager
             'rejected'    => function ($reason, $index) use ($pages, $client){
                 // deindex file credits if page returned an error
                 $request = new Request('GET', Url::addQueryString(FileCredit::REQUEST_DEINDEX_PARAM . '=1', $pages[$index]));
-                $client->send($request);
+                try {
+                    $client->send($request);
+                } catch (\Exception $e) {
+                    System::log("Got an Exception when crawling page for filecredits. Message: ".$e->getMessage(), 'HeimrichHannot\FileCredit\IndexManager::crawl', TL_ERROR);
+                }
             },
         ]);
 

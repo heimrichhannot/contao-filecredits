@@ -1,8 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [3.5.0] - 2019-12-11
+## [3.5.1] - 2020-01-17
+- fixed an occasionally exception when crawling page
 
+## [3.5.0] - 2019-12-11
 - added tl_settings::deactivateFileCreditsCron
 
 ## [3.4.1] - 2019-10-01

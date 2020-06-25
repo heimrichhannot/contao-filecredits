@@ -17,8 +17,9 @@
         "issues":"https://github.com/heimrichhannot/contao-filecredits/issues"
     },
     "require": {
-        "contao/core": ">=3.4,<4-dev",
-	"menatwork/contao-multicolumnwizard": ">=2.10,<4"
+        "contao/core-bundle": "^3.4|^4.1",
+        "contao-community-alliance/composer-plugin": "~2.4 || ~3.0",
+        "menatwork/contao-multicolumnwizard": ">=2.10,<4"
     },
     "autoload": {
         "classmap": [""]

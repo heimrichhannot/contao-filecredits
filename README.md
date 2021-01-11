@@ -1,3 +1,7 @@
+# ABANDONED
+
+Please note that this module is abandoned and not developed any further.
+
 # Filecredits
 
 Contao module that adds credit support for images and files.

@@ -1,6 +1,7 @@
-# ABANDONED
 
-Please note that this module is abandoned and not developed any further.
+> # ABANDONED
+
+> Please note that this module is abandoned and not developed any further.
 
 # Filecredits
 

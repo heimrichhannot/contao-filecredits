@@ -1,7 +1,13 @@
+> [!CAUTION]
+> **ABANDONED**
+> 
+> This module has reached its end of life and will undergo no further development.
+>
+> Refer to the recommended replacement, which is also available for Contao 5 as of v2.
+>
+> [heimrichhannot/contao-filecredits-bundle](https://github.com/heimrichhannot/contao-filecredits-bundle)
 
-> # ABANDONED
-
-> Please note that this module is abandoned and not developed any further.
+---
 
 # Filecredits
 

@@ -22,6 +22,8 @@ use Haste\Util\Url;
 use HeimrichHannot\FileCredit\Automator;
 use HeimrichHannot\FileCredit\FileCreditModel;
 use HeimrichHannot\FileCredit\FileCreditPageModel;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FileCredit extends Backend implements \executable
 {
@@ -102,6 +104,8 @@ class FileCredit extends Backend implements \executable
         $this->registerEvents();
 
         $time = time();
+        $arrUser = array(''=>'-');
+        $objUser = null;
 
         /** @var \BackendTemplate|object $objTemplate */
         $objTemplate                = new \BackendTemplate('be_filecredits_sync');
@@ -114,17 +118,45 @@ class FileCredit extends Backend implements \executable
             $objTemplate->originInfo = $GLOBALS['TL_LANG']['tl_filecredit']['originInfo'];
         }
 
+        /** @var Session $objSession */
+        $objSession = \System::getContainer()->get('session');
+
         // Add the error message
-        if (isset($_SESSION['REBUILD_FILECREDIT_ERROR']) && $_SESSION['REBUILD_FILECREDIT_ERROR'] != '') {
-            $objTemplate->indexMessage            = $_SESSION['REBUILD_FILECREDIT_ERROR'];
-            $_SESSION['REBUILD_FILECREDIT_ERROR'] = '';
+        $strSessionErrorMessage = $objSession->get('REBUILD_FILECREDIT_ERROR');
+        if ($strSessionErrorMessage) {
+            $objTemplate->indexMessage            = $strSessionErrorMessage;
+            $objSession->remove('REBUILD_FILECREDIT_ERROR');
+        }
+
+        // Get the active front end users
+        if ($this->User->isAdmin)
+        {
+            $objUser = $this->Database->execute("SELECT id, username FROM tl_member WHERE disable!='1' AND (start='' OR start<='$time') AND (stop='' OR stop>'$time') ORDER BY username");
+        }
+        else
+        {
+            $amg = \StringUtil::deserialize($this->User->amg);
+
+            if (!empty($amg) && \is_array($amg))
+            {
+                $objUser = $this->Database->execute("SELECT id, username FROM tl_member WHERE (groups LIKE '%\"" . implode('"%\' OR \'%"', array_map('\intval', $amg)) . "\"%') AND disable!='1' AND (start='' OR start<='$time') AND (stop='' OR stop>'$time') ORDER BY username");
+            }
+        }
+
+        if ($objUser !== null)
+        {
+            while ($objUser->next())
+            {
+                $arrUser[$objUser->id] = $objUser->username . ' (' . $objUser->id . ')';
+            }
         }
 
         // Rebuild the index
         if (\Input::post('act') == 'index') {
+
             // Check the request token (see #4007)
             if (!isset($_POST['REQUEST_TOKEN']) || !\RequestToken::validate(\Input::post('REQUEST_TOKEN'))) {
-                $this->Session->set('INVALID_TOKEN_URL', \Environment::get('request'));
+                $objSession->set('INVALID_TOKEN_URL', \Environment::get('request'));
                 $this->redirect('contao/confirm.php');
             }
 
@@ -143,40 +175,73 @@ class FileCredit extends Backend implements \executable
             }
             // Return if there are no pages
             if (empty($arrPages)) {
-                $_SESSION['REBUILD_FILECREDIT_ERROR'] = $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable'];
+                $objSession->set('REBUILD_FILECREDIT_ERROR', $GLOBALS['TL_LANG']['tl_filecredit']['noSearchable']);
                 Controller::reload();
             }
 
-            // Truncate the search tables
+            // Truncate the credit tables
             if ($blnTruncateTable) {
                 Automator::purgeFileCreditTables();
             }
 
             // Hide unpublished elements
-            $this->setCookie('FE_PREVIEW', 0, ($time - 86400));
+            $this->setCookie('FE_PREVIEW', 0, ($time - 86400), null, null, \Environment::get('ssl'), true);
 
-            // Calculate the hash
-            $strHash = sha1(session_id() . (!\Config::get('disableIpCheck') ? \Environment::get('ip') : '') . 'FE_USER_AUTH');
+            // Check Cotnao Version
+            if (version_compare(VERSION, '4.5', '<')) {
 
-            // Remove old sessions
-            $this->Database->prepare("DELETE FROM tl_session WHERE tstamp<? OR hash=?")->execute(($time - \Config::get('sessionTimeout')), $strHash);
+                // Contao 4.4
 
-            // Log in the front end user
-            if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
-                // Insert a new session
-                $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")->execute(\Input::get('user'), $time, 'FE_USER_AUTH', session_id(), \Environment::get('ip'), $strHash);
+                $strHash = $this->getSessionHash('FE_USER_AUTH');
 
-                // Set the cookie
-                $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, false, true);
-            } // Log out the front end user
-            else {
-                // Unset the cookies
-                $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, false, true);
-                $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
+                // Remove old sessions
+                $this->Database->prepare("DELETE FROM tl_session WHERE tstamp<? OR hash=?")
+                    ->execute(($time - \Config::get('sessionTimeout')), $strHash);
+
+                $strUser = \Input::get('user');
+
+                // Log in the front end user
+                if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
+                    // Insert a new session
+                    $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")
+                        ->execute($strUser, $time, 'FE_USER_AUTH', \System::getContainer()->get('session')->getId(), \Environment::get('ip'), $strHash);
+
+                    // Set the cookie
+                    $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, \Environment::get('ssl'), true);
+                } // Log out the front end user
+                else {
+                    // Unset the cookies
+                    $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, \Environment::get('ssl'), true);
+                    $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, \Environment::get('ssl'), true);
+                }
+
+            } else {
+
+                // Contao >= 4.5
+                $strUser = \Input::get('user');
+                $objAuthenticator = \System::getContainer()->get('contao.security.frontend_preview_authenticator');
+
+                // Log in the front end user
+                if (is_numeric($strUser) && $strUser > 0 && isset($arrUser[$strUser]))
+                {
+                    $objUser = $this->Database->prepare("SELECT username FROM tl_member WHERE id=?")
+                        ->execute($strUser);
+
+                    if (!$objUser->numRows || !$objAuthenticator->authenticateFrontendUser($objUser->username, false))
+                    {
+                        $objAuthenticator->removeFrontendAuthentication();
+                    }
+                }
+
+                // Log out the front end user
+                else
+                {
+                    $objAuthenticator->removeFrontendAuthentication();
+                }
             }
 
             $strBuffer = '';
-            $rand      = rand();
+            $rand      = mt_rand();
 
             // Display the pages
             for ($i = 0, $c = count($arrPages); $i < $c; $i++) {
@@ -200,7 +265,7 @@ class FileCredit extends Backend implements \executable
         // Default variables
         $objTemplate->indexSubmit = $GLOBALS['TL_LANG']['tl_filecredit']['syncSubmit'];
         $objTemplate->backHref    = \System::getReferer(true);
-        $objTemplate->backTitle   = specialchars($GLOBALS['TL_LANG']['MSC']['backBTTitle']);
+        $objTemplate->backTitle   = \StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['backBTTitle']);
         $objTemplate->backButton  = $GLOBALS['TL_LANG']['MSC']['backBT'];
 
         return $objTemplate->parse();
